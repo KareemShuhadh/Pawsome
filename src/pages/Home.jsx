@@ -3,6 +3,10 @@ import { PostCard } from "@/components/PostCard";
 import { TopDogs } from "@/components/TopDogs";
 import { useState } from "react";
 
+import { DealsBar } from "@/components/layout/DealsBar";
+
+import stasiuImg from "@/assets/Snapchat-353224242.jpg";
+
 // Dummy data so you can see the layout immediately
 const dummyPosts = [
   {
@@ -11,8 +15,8 @@ const dummyPosts = [
     owner_name: "Kaja",
     location: "Poland",
     description: "Best doggy ever! Loves belly rubs and stealing socks.",
-    image_url: "https://hips.hearstapps.com/aada87eb7c5759b5c9610ce497ee2445153497a6.jpg",
-    votes: 1003,
+   image_url: stasiuImg,
+    votes: 1000,
   },
   {
     id: "2",
@@ -20,7 +24,7 @@ const dummyPosts = [
     owner_name: "Ahmed",
     location: "Cairo, Egypt",
     description: "A cheeky golden who steals socks for fun...",
-    image_url: "https://hips.hearstapps.com/aada87eb7c5759b5c9610ce497ee2445153497a6.jpg",
+    image_url: "https://th.bing.com/th/id/R.66853f8606bff6b73e2aad4407b5be0a?rik=fVW4gRYxQKxxWA&riu=http%3a%2f%2fdancewithizzy.squarespace.com%2fstorage%2fanimals-pictures-cute-dogs.jpg%3f__SQUARESPACE_CACHEVERSION%3d1298065073623&ehk=hVAlG8uJlQzsUa%2fVT9%2blFtLjSfwczxR%2fNhLbKDNRB5w%3d&risl=&pid=ImgRaw&r=0",
     votes: 42,
   },
   {
@@ -29,7 +33,7 @@ const dummyPosts = [
     owner_name: "Sarah",
     location: "Lisbon, Portugal",
     description: "Tiny but mighty. Professional cuddler.",
-    image_url: "https://thumbs.dreamstime.com/47d35ef3c664214673006eb255d34231db409c04.jpg",
+    image_url: "https://tse2.mm.bing.net/th/id/OIP.0_4SmHo9IqUW2m7ppN7D3wHaEo?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
     votes: 28,
   },
   {
@@ -38,7 +42,7 @@ const dummyPosts = [
     owner_name: "Tom",
     location: "Paris, France",
     description: "Loves park walks and chasing squirrels.",
-    image_url: "https://ih1.redbubble.net/bcf21814dc47ffa9c546519c6567d0455aa40ae4.jpg",
+    image_url: "https://images.pexels.com/photos/19024664/pexels-photo-19024664.jpeg?cs=srgb&dl=pexels-csibeman-19024664.jpg&fm=jpg",
     votes: 15,
   },
 ];
@@ -92,6 +96,8 @@ export default function Home() {
             {freshPups.map((post) => (
               <PostCard key={post.id} post={post} onVoted={handleVote} />
             ))}
+
+              <DealsBar />
           </div>
         </div>
       </div>

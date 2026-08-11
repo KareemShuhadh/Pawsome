@@ -4,6 +4,9 @@ import Home from "@/pages/Home";
 import AddDog from "@/pages/AddDog";
 import DogDetail from "@/pages/DogDetail";
 import MyPosts from "@/pages/MyPosts";
+// TODO: Uncomment when auth is implemented
+// import Login from "@/pages/Login";
+// import Register from "@/pages/Register";
 
 function App() {
   return (
@@ -14,6 +17,10 @@ function App() {
         <Route path="/add" element={<AddDog />} />
         <Route path="/dog/:id" element={<DogDetail />} />
         <Route path="/my-posts" element={<MyPosts />} />
+        
+        {/* Future auth routes - uncomment when ready */}
+        {/* <Route path="/login" element={<Login />} /> */}
+        {/* <Route path="/register" element={<Register />} /> */}
       </Routes>
     </BrowserRouter>
   );
