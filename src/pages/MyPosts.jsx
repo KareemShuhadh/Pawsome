@@ -53,10 +53,10 @@ export default function MyPosts() {
               <div key={post.id} className="relative">
                 <PostCard post={post} onVoted={handleVote} />
                 <div className="absolute bottom-4 right-4 flex gap-2">
-                  <button className="px-3 py-1.5 rounded-lg bg-white/90 backdrop-blur border border-border text-sm font-bold hover:bg-secondary transition-smooth shadow-soft">
+                  <button className="px-3 py-1.5 rounded-lg bg-card/90 backdrop-blur border border-border text-sm font-bold hover:bg-secondary transition-smooth shadow-soft">
                     ✏️ Edit
                   </button>
-                  <button className="px-3 py-1.5 rounded-lg bg-white/90 backdrop-blur border border-red-200 text-red-600 text-sm font-bold hover:bg-red-50 transition-smooth shadow-soft">
+                  <button className="px-3 py-1.5 rounded-lg bg-card/90 backdrop-blur border border-destructive/30 text-destructive text-sm font-bold hover:bg-destructive/10 transition-smooth shadow-soft">
                     🗑️ Delete
                   </button>
                 </div>

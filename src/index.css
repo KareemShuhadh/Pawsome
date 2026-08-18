@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* enables class-based (not OS-only) dark mode for Tailwind v4's CSS-first config */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Colors — these connect to Tailwind utilities like bg-background, text-foreground, etc. */
   --color-background: hsl(var(--background));
@@ -83,6 +86,7 @@
     --popover-foreground: 38 50% 95%;
     --primary: 18 85% 60%;
     --primary-foreground: 25 25% 10%;
+    --primary-glow: 30 95% 68%;
     --secondary: 25 20% 20%;
     --secondary-foreground: 38 50% 95%;
     --muted: 25 20% 18%;
@@ -91,9 +95,17 @@
     --accent-foreground: 0 0% 100%;
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 25 20% 22%;
-    --input: 25 20% 22%;
-    --ring: 18 85% 60%;
+    --border: 25 20% 24%;
+    --input: 25 20% 24%;
+    --ring: 30 90% 66%;
+
+    --gradient-warm: linear-gradient(135deg, hsl(18 80% 52%), hsl(30 85% 60%));
+    --gradient-soft: linear-gradient(180deg, hsl(25 22% 15%), hsl(25 25% 12%));
+    --gradient-hero: linear-gradient(135deg, hsl(25 26% 15%), hsl(20 30% 12%));
+
+    --shadow-soft: 0 4px 20px -4px hsl(0 0% 0% / 0.5);
+    --shadow-card: 0 8px 30px -8px hsl(0 0% 0% / 0.6);
+    --shadow-glow: 0 10px 40px -10px hsl(18 85% 55% / 0.35);
   }
 
   * {
@@ -105,6 +117,11 @@
     color: hsl(var(--foreground));
     font-feature-settings: "ss01", "cv11";
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop, .animate-float-up { animation: none !important; }
+  .transition-bounce, .transition-smooth { transition: none !important; }
 }
 
 /* Custom utility classes — use these directly in JSX: className="bg-gradient-warm" */

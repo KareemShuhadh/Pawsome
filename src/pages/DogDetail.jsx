@@ -88,7 +88,7 @@ export default function DogDetail() {
             <button className="px-5 py-2.5 rounded-xl border-2 border-border font-bold hover:bg-secondary transition-smooth">
               ✏️ Edit
             </button>
-            <button className="px-5 py-2.5 rounded-xl border-2 border-red-200 text-red-600 font-bold hover:bg-red-50 transition-smooth">
+            <button className="px-5 py-2.5 rounded-xl border-2 border-destructive/30 text-destructive font-bold hover:bg-destructive/10 transition-smooth">
               🗑️ Delete
             </button>
           </div>
