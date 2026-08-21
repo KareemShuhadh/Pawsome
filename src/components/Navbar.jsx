@@ -68,7 +68,7 @@ export const Navbar = () => {
 
             {user ? (
               <div className="flex items-center gap-2 ml-2">
-                <span className="text-sm font-bold text-muted-foreground hidden md:inline">{user.email}</span>
+                <span className="text-sm font-bold text-muted-foreground hidden md:inline">{user.user_metadata?.["name"]}</span>
                 <button onClick={handleLogout} disabled={loggingOut} className="px-4 py-2 rounded-full font-bold text-sm border-2 border-red-300 text-red-600 hover:bg-red-50 transition-bounce flex items-center gap-1.5">
                   {loggingOut ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />} Logout
                 </button>

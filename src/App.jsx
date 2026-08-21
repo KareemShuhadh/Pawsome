@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
+import { PostProvider } from "@/context/PostContext";
+import { VoteProvider } from "@/context/VoteContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { Navbar } from "@/components/Navbar";
 import Home from "@/pages/Home";
@@ -14,15 +16,19 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/add" element={<AddDog />} />
-            <Route path="/dog/:id" element={<DogDetail />} />
-            <Route path="/my-posts" element={<MyPosts />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-          </Routes>
+          <VoteProvider>
+            <PostProvider>
+              <Navbar />
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/add" element={<AddDog />} />
+                <Route path="/dog/:id" element={<DogDetail />} />
+                <Route path="/my-posts" element={<MyPosts />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+              </Routes>
+            </PostProvider>
+          </VoteProvider>
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>

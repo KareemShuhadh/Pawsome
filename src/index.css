@@ -32,6 +32,12 @@
   --font-display: "Fredoka", system-ui, sans-serif;
   --font-sans: "Nunito", system-ui, sans-serif;
 
+  /* --radius is declared in :root but Tailwind v4 rounded-* utilities only
+     pick it up if mapped to the matching --radius-* theme tokens. */
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+  --radius-2xl: calc(var(--radius) + 0.5rem);
+
   @keyframes pop {
     0% { transform: scale(1); }
     50% { transform: scale(1.25); }
@@ -133,3 +139,74 @@
 .shadow-glow { box-shadow: var(--shadow-glow); }
 .transition-bounce { transition: var(--transition-bounce); }
 .transition-smooth { transition: var(--transition-smooth); }
+
+
+
+@keyframes login-prompt-enter {
+	0% {
+		opacity: 0;
+		transform: translateY(80px);
+	}
+
+	60% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes login-prompt-exit {
+	0% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	35% {
+		opacity: 1;
+		transform: translateY(15px);
+	}
+
+	70% {
+		opacity: 0.8;
+		transform: translateY(50px);
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateY(120px);
+	}
+}
+
+.animate-login-prompt-enter {
+	animation: login-prompt-enter 500ms ease-out forwards;
+}
+
+.animate-login-prompt-exit {
+	animation: login-prompt-exit 900ms ease-in forwards;
+}
+
+/* Post details modal scrollbar */
+.post-details-scrollbar {
+	scrollbar-width: thin;
+	scrollbar-color: hsl(var(--border)) transparent;
+}
+
+.post-details-scrollbar::-webkit-scrollbar {
+	width: 8px;
+}
+
+.post-details-scrollbar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.post-details-scrollbar::-webkit-scrollbar-thumb {
+	background: hsl(var(--border));
+	border-radius: 999px;
+}
+
+.post-details-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: hsl(var(--muted-foreground) / 0.5);
+}
