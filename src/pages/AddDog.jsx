@@ -9,10 +9,10 @@ export default function AddDog() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-soft pt-8 pb-16">
-      <div className="container mx-auto px-4">
+    <main className="min-h-screen bg-gradient-soft pt-8 pb-16">
+      <section className="container mx-auto px-4">
         <AddDogForm onCreated={handleCreated} />
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

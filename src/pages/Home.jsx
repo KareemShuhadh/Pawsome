@@ -30,29 +30,29 @@ export default function Home() {
 
 	if (loading) {
 		return (
-			<div className="min-h-screen flex items-center justify-center">
-				<div className="text-2xl font-bold text-primary">
+			<main className="min-h-screen flex items-center justify-center">
+				<p className="text-2xl font-bold text-primary">
 					Loading dogs... 🐕
-				</div>
-			</div>
+				</p>
+			</main>
 		);
 	}
 
 	return (
-		<div className="min-h-screen bg-background pb-16">
+		<main className="min-h-screen bg-background pb-16">
 			<WelcomeBanner />
 
-			<div className="container mx-auto px-4">
+			<section className="container mx-auto px-4">
 				{/* ================================
 				    Top Dogs
 				    ================================ */}
-				<div className="mt-8 mb-4">
-					<div className="flex items-center gap-2 mb-4">
-						<div className="w-9 h-9 rounded-xl bg-gradient-warm flex items-center justify-center text-white text-lg shadow-glow">
+				<section className="mt-8 mb-4">
+					<header className="flex items-center gap-2 mb-4">
+						<span className="w-9 h-9 rounded-xl bg-gradient-warm flex items-center justify-center text-white text-lg shadow-glow">
 							🏆
-						</div>
+						</span>
 
-						<div>
+						<section>
 							<h2 className="text-xl font-bold leading-tight">
 								Top Dogs
 							</h2>
@@ -60,25 +60,25 @@ export default function Home() {
 							<p className="text-sm text-muted-foreground">
 								The most-loved pups right now
 							</p>
-						</div>
-					</div>
+						</section>
+					</header>
 
 					<TopDogs
 						posts={topPosts}
 						onPostClick={handlePostClick}
 					/>
-				</div>
+				</section>
 
 				{/* ================================
 				    Fresh Pups
 				    ================================ */}
-				<div className="mt-10 mb-4">
-					<div className="flex items-center gap-2 mb-6">
-						<div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center text-white text-lg">
+				<section className="mt-10 mb-4">
+					<header className="flex items-center gap-2 mb-6">
+						<span className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center text-white text-lg">
 							🐾
-						</div>
+						</span>
 
-						<div>
+						<section>
 							<h2 className="text-xl font-bold leading-tight">
 								Fresh Pups
 							</h2>
@@ -86,11 +86,11 @@ export default function Home() {
 							<p className="text-sm text-muted-foreground">
 								Newest dogs on Pawsome
 							</p>
-						</div>
-					</div>
+						</section>
+					</header>
 
 					{posts.length > 0 ? (
-						<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+						<section className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
 							{posts.map((post) => (
 								<PostCard
 									key={post.id}
@@ -100,12 +100,12 @@ export default function Home() {
 									}
 								/>
 							))}
-						</div>
+						</section>
 					) : (
-						<div className="text-center py-12 text-muted-foreground">
-							<div className="text-4xl mb-3">
+						<section className="text-center py-12 text-muted-foreground">
+							<span className="text-4xl mb-3 block">
 								🐶
-							</div>
+							</span>
 
 							<p className="font-semibold">
 								No fresh pups yet.
@@ -114,14 +114,14 @@ export default function Home() {
 							<p className="text-sm mt-1">
 								Be the first to add one!
 							</p>
-						</div>
+						</section>
 					)}
 
 					{/* ================================
 					    Load More
 					    ================================ */}
 					{hasMore && (
-						<div className="flex justify-center mt-8">
+						<section className="flex justify-center mt-8">
 							<button
 								type="button"
 								onClick={loadMorePosts}
@@ -132,10 +132,10 @@ export default function Home() {
 									? "Loading..."
 									: "Load More"}
 							</button>
-						</div>
+						</section>
 					)}
-				</div>
-			</div>
+				</section>
+			</section>
 
 			{/* ================================
 			    Post Details
@@ -145,6 +145,6 @@ export default function Home() {
 				open={Boolean(selectedPost)}
 				onClose={handleCloseDetails}
 			/>
-		</div>
+		</main>
 	);
 }

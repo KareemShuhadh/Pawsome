@@ -36,8 +36,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-soft flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <main className="min-h-screen bg-gradient-soft flex items-center justify-center px-4">
+      <section className="w-full max-w-md">
         <Link
           to="/"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary font-bold mb-6 transition-smooth"
@@ -47,16 +47,18 @@ export default function Login() {
         </Link>
 
         <Card className="p-8 shadow-card border-2 border-border/60">
-          <h1 className="text-3xl font-bold mb-2 text-center">
-            Welcome back! 🐾
-          </h1>
+          <header>
+            <h1 className="text-3xl font-bold mb-2 text-center">
+              Welcome back! 🐾
+            </h1>
 
-          <p className="text-muted-foreground text-center mb-8">
-            Sign in to manage your posts
-          </p>
+            <p className="text-muted-foreground text-center mb-8">
+              Sign in to manage your posts
+            </p>
+          </header>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
+            <fieldset className="space-y-2">
               <Label htmlFor="email">Email</Label>
 
               <Input
@@ -67,9 +69,9 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
               />
-            </div>
+            </fieldset>
 
-            <div className="space-y-2">
+            <fieldset className="space-y-2">
               <Label htmlFor="password">Password</Label>
 
               <Input
@@ -80,7 +82,7 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
               />
-            </div>
+            </fieldset>
 
             <button
               type="submit"
@@ -111,13 +113,13 @@ export default function Login() {
             </Link>
           </p>
         </Card>
-      </div>
+      </section>
 
       {/* Custom notification */}
       <Notification
         notification={notification}
         onDismiss={() => setNotification(null)}
       />
-    </div>
+    </main>
   );
 }

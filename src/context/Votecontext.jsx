@@ -16,67 +16,68 @@ import { usePosts } from "@/context/PostContext";
 const VoteContext = createContext(null);
 
 export const VoteProvider = ({ children }) => {
-	const { user, loading: authLoading } = useAuth();
+	const {
+		user,
+		loading: authLoading,
+	} = useAuth();
 
 	/*
-	 * Get the posts that are currently loaded by
-	 * PostContext.
-	 *
-	 * "posts" = currently loaded Fresh Pups
-	 * "topPosts" = the 3 Top Dogs that are always loaded
+	 * Get currently loaded posts.
 	 */
+
 	const {
 		posts,
 		topPosts,
 	} = usePosts();
 
 	/*
-	 * Stores the IDs of posts the current user
-	 * has voted for.
+	 * ======================================================
+	 * VOTED POST IDS
+	 * ======================================================
 	 *
-	 * IMPORTANT:
-	 *
-	 * This is no longer populated with ALL votes
-	 * belonging to the user.
-	 *
-	 * It only contains votes for posts that we
-	 * have actually loaded on the screen.
+	 * Contains only the posts currently loaded/checked.
 	 */
+
 	const [votedPostIds, setVotedPostIds] =
 		useState(new Set());
 
 	/*
-	 * Keeps track of post IDs for which we have
-	 * already checked the user's vote status.
+	 * ======================================================
+	 * CHECKED POST IDS
+	 * ======================================================
 	 *
-	 * Example:
-	 *
-	 * First page:
-	 * [1,2,3,...,20]
-	 *
-	 * These IDs are stored here.
-	 *
-	 * When another 20 posts are loaded, we only
-	 * query those new IDs.
+	 * Prevents repeatedly asking Supabase about the
+	 * same post.
 	 */
-	const checkedPostIdsRef = useRef(new Set());
+
+	const checkedPostIdsRef = useRef(
+		new Set()
+	);
 
 	/*
-	 * Loading state for vote-status queries.
+	 * ======================================================
+	 * LOADING
+	 * ======================================================
 	 */
-	const [loading, setLoading] = useState(false);
+
+	const [loading, setLoading] =
+		useState(false);
 
 	/*
-	 * Which post is currently being voted on.
-	 *
-	 * Used to prevent rapid double clicks.
+	 * ======================================================
+	 * CURRENT VOTE
+	 * ======================================================
 	 */
+
 	const [votingPostId, setVotingPostId] =
 		useState(null);
 
 	/*
-	 * Login notification state.
+	 * ======================================================
+	 * LOGIN PROMPT
+	 * ======================================================
 	 */
+
 	const [showLoginPrompt, setShowLoginPrompt] =
 		useState(false);
 
@@ -90,54 +91,43 @@ export const VoteProvider = ({ children }) => {
 		useRef(null);
 
 	/*
-	 * --------------------------------------------------
-	 * RESET VOTE STATE WHEN USER CHANGES
-	 * --------------------------------------------------
-	 *
-	 * When:
-	 *
-	 * user A logs out
-	 * user B logs in
-	 *
-	 * we MUST forget which post IDs we already
-	 * checked for user A.
-	 *
-	 * Otherwise user B could incorrectly inherit
-	 * user A's vote information.
+	 * ======================================================
+	 * RESET WHEN USER CHANGES
+	 * ======================================================
 	 */
+
 	useEffect(() => {
-		checkedPostIdsRef.current = new Set();
+		/*
+		 * Forget all vote information belonging to
+		 * the previous user.
+		 */
+
+		checkedPostIdsRef.current =
+			new Set();
 
 		setVotedPostIds(new Set());
+
 		setLoading(false);
 	}, [user?.id]);
 
 	/*
-	 * --------------------------------------------------
-	 * LOAD VOTE STATUS FOR CURRENTLY LOADED POSTS
-	 * --------------------------------------------------
+	 * ======================================================
+	 * LOAD VOTE STATUS
+	 * ======================================================
 	 *
-	 * This is the main performance improvement.
-	 *
-	 * We DO NOT:
-	 *
-	 * .select("post_id")
-	 * .eq("user_id", user.id)
-	 *
-	 * because that would download every vote the
-	 * user has ever made.
-	 *
-	 * Instead we only ask about post IDs that are
-	 * currently loaded on the page.
+	 * Only query votes for posts currently loaded
+	 * on the screen.
 	 */
+
 	useEffect(() => {
-		if (authLoading) return;
+		if (authLoading) {
+			return;
+		}
 
 		/*
-		 * Logged out:
-		 *
-		 * There is nothing to check.
+		 * Logged out.
 		 */
+
 		if (!user) {
 			setVotedPostIds(new Set());
 			setLoading(false);
@@ -148,11 +138,11 @@ export const VoteProvider = ({ children }) => {
 		/*
 		 * Combine:
 		 *
-		 * 1. Top 3
-		 * 2. Current Fresh Pups
-		 *
-		 * A Set removes duplicates automatically.
+		 * Top Dogs
+		 * +
+		 * Fresh Pups
 		 */
+
 		const allLoadedPostIds = [
 			...(topPosts || []),
 			...(posts || []),
@@ -165,11 +155,9 @@ export const VoteProvider = ({ children }) => {
 		];
 
 		/*
-		 * Find only post IDs that we have NOT
-		 * checked yet.
-		 *
-		 * This is important for pagination.
+		 * Only check IDs we have not checked before.
 		 */
+
 		const newPostIds =
 			uniquePostIds.filter(
 				(postId) =>
@@ -178,79 +166,83 @@ export const VoteProvider = ({ children }) => {
 					)
 			);
 
-		/*
-		 * Nothing new to check.
-		 */
 		if (newPostIds.length === 0) {
 			return;
 		}
 
 		let cancelled = false;
 
-		const loadVotesForPosts = async () => {
-			setLoading(true);
+		const loadVotesForPosts =
+			async () => {
+				setLoading(true);
 
-			/*
-			 * Query only votes belonging to:
-			 *
-			 * current user
-			 *
-			 * AND
-			 *
-			 * the newly loaded posts.
-			 */
-			const { data, error } = await supabase
-				.from("votes")
-				.select("post_id")
-				.eq("user_id", user.id)
-				.in("post_id", newPostIds);
+				const {
+					data,
+					error,
+				} = await supabase
+					.from("votes")
+					.select("post_id")
+					.eq(
+						"user_id",
+						user.id
+					)
+					.in(
+						"post_id",
+						newPostIds
+					);
 
-			if (cancelled) return;
+				if (cancelled) {
+					return;
+				}
 
-			if (error) {
-				console.error(
-					"Error loading vote status:",
-					error
+				if (error) {
+					console.error(
+						"Error loading vote status:",
+						error
+					);
+
+					setLoading(false);
+
+					return;
+				}
+
+				/*
+				 * Add returned votes.
+				 */
+
+				setVotedPostIds(
+					(current) => {
+						const next =
+							new Set(
+								current
+							);
+
+						(data || []).forEach(
+							(row) => {
+								next.add(
+									row.post_id
+								);
+							}
+						);
+
+						return next;
+					}
 				);
 
 				/*
-				 * We do NOT mark the posts as checked
-				 * when the request fails.
-				 *
-				 * This allows the next effect run to
-				 * try again.
+				 * Mark these posts as checked.
 				 */
-				setLoading(false);
 
-				return;
-			}
-
-			/*
-			 * Add the newly discovered votes to the
-			 * existing Set.
-			 */
-			setVotedPostIds((current) => {
-				const next = new Set(current);
-
-				(data || []).forEach((row) => {
-					next.add(row.post_id);
-				});
-
-				return next;
-			});
-
-			/*
-			 * Mark these post IDs as checked only
-			 * after the request succeeds.
-			 */
-			newPostIds.forEach((postId) => {
-				checkedPostIdsRef.current.add(
-					postId
+				newPostIds.forEach(
+					(postId) => {
+						checkedPostIdsRef.current.add(
+							postId
+						);
+					}
 				);
-			});
 
-			setLoading(false);
-		};
+				setLoading(false);
+			};
 
 		loadVotesForPosts();
 
@@ -265,19 +257,165 @@ export const VoteProvider = ({ children }) => {
 	]);
 
 	/*
-	 * --------------------------------------------------
-	 * LOGIN PROMPT CLEANUP
-	 * --------------------------------------------------
+	 * ======================================================
+	 * REALTIME USER VOTES
+	 * ======================================================
+	 *
+	 * This listens to the votes table.
+	 *
+	 * INSERT:
+	 *   Current user voted for a post.
+	 *
+	 * DELETE:
+	 *   Current user removed their vote.
+	 *
+	 * IMPORTANT:
+	 *
+	 * This does NOT update post.votes.
+	 *
+	 * PostgreSQL + the trigger + PostContext Realtime
+	 * handle the actual vote count.
 	 */
+
+	useEffect(() => {
+		if (authLoading || !user) {
+			return;
+		}
+
+		const channel = supabase
+			.channel(
+				`user-votes-${user.id}`
+			)
+			.on(
+				"postgres_changes",
+				{
+					event: "INSERT",
+					schema: "public",
+					table: "votes",
+					filter: `user_id=eq.${user.id}`,
+				},
+				(payload) => {
+					const postId =
+						payload.new
+							?.post_id;
+
+					if (!postId) {
+						return;
+					}
+
+					console.log(
+						"Realtime vote INSERT:",
+						payload.new
+					);
+
+					/*
+					 * User has voted for this post.
+					 */
+
+					setVotedPostIds(
+						(current) => {
+							const next =
+								new Set(
+									current
+								);
+
+							next.add(
+								postId
+							);
+
+							/*
+							 * We know this post's
+							 * vote state now.
+							 */
+
+							checkedPostIdsRef.current.add(
+								postId
+							);
+
+							return next;
+						}
+					);
+				}
+			)
+			.on(
+				"postgres_changes",
+				{
+					event: "DELETE",
+					schema: "public",
+					table: "votes",
+					filter: `user_id=eq.${user.id}`,
+				},
+				(payload) => {
+					const postId =
+						payload.old
+							?.post_id;
+
+					if (!postId) {
+						return;
+					}
+
+					console.log(
+						"Realtime vote DELETE:",
+						payload.old
+					);
+
+					/*
+					 * User no longer has a vote
+					 * for this post.
+					 */
+
+					setVotedPostIds(
+						(current) => {
+							const next =
+								new Set(
+									current
+								);
+
+							next.delete(
+								postId
+							);
+
+							return next;
+						}
+					);
+				}
+			)
+			.subscribe((status) => {
+				console.log(
+					"User votes realtime status:",
+					status
+				);
+			});
+
+		return () => {
+			supabase.removeChannel(
+				channel
+			);
+		};
+	}, [
+		user?.id,
+		authLoading,
+	]);
+
+	/*
+	 * ======================================================
+	 * LOGIN PROMPT CLEANUP
+	 * ======================================================
+	 */
+
 	useEffect(() => {
 		return () => {
-			if (loginPromptTimeoutRef.current) {
+			if (
+				loginPromptTimeoutRef.current
+			) {
 				clearTimeout(
 					loginPromptTimeoutRef.current
 				);
 			}
 
-			if (removePromptTimeoutRef.current) {
+			if (
+				removePromptTimeoutRef.current
+			) {
 				clearTimeout(
 					removePromptTimeoutRef.current
 				);
@@ -286,18 +424,19 @@ export const VoteProvider = ({ children }) => {
 	}, []);
 
 	/*
-	 * Completely remove the login notification.
+	 * ======================================================
+	 * LOGIN PROMPT
+	 * ======================================================
 	 */
+
 	const removeLoginPrompt = () => {
 		setShowLoginPrompt(false);
 		setPromptAnimation("enter");
 
-		removePromptTimeoutRef.current = null;
+		removePromptTimeoutRef.current =
+			null;
 	};
 
-	/*
-	 * Start the exit animation.
-	 */
 	const startExitAnimation = () => {
 		if (promptAnimation === "exit") {
 			return;
@@ -311,24 +450,27 @@ export const VoteProvider = ({ children }) => {
 			}, 900);
 	};
 
-	/*
-	 * Show login notification.
-	 */
 	const triggerLoginPrompt = () => {
-		if (loginPromptTimeoutRef.current) {
+		if (
+			loginPromptTimeoutRef.current
+		) {
 			clearTimeout(
 				loginPromptTimeoutRef.current
 			);
 
-			loginPromptTimeoutRef.current = null;
+			loginPromptTimeoutRef.current =
+				null;
 		}
 
-		if (removePromptTimeoutRef.current) {
+		if (
+			removePromptTimeoutRef.current
+		) {
 			clearTimeout(
 				removePromptTimeoutRef.current
 			);
 
-			removePromptTimeoutRef.current = null;
+			removePromptTimeoutRef.current =
+				null;
 		}
 
 		setShowLoginPrompt(true);
@@ -340,39 +482,52 @@ export const VoteProvider = ({ children }) => {
 			}, 3500);
 	};
 
-	/*
-	 * Manually dismiss login notification.
-	 */
 	const dismissLoginPrompt = () => {
-		if (loginPromptTimeoutRef.current) {
+		if (
+			loginPromptTimeoutRef.current
+		) {
 			clearTimeout(
 				loginPromptTimeoutRef.current
 			);
 
-			loginPromptTimeoutRef.current = null;
+			loginPromptTimeoutRef.current =
+				null;
 		}
 
 		startExitAnimation();
 	};
 
 	/*
-	 * --------------------------------------------------
+	 * ======================================================
 	 * CHECK IF USER VOTED
-	 * --------------------------------------------------
+	 * ======================================================
 	 */
+
 	const hasVoted = (postId) => {
 		return votedPostIds.has(postId);
 	};
 
 	/*
-	 * --------------------------------------------------
+	 * ======================================================
 	 * TOGGLE VOTE
-	 * --------------------------------------------------
+	 * ======================================================
+	 *
+	 * IMPORTANT:
+	 *
+	 * We only insert/delete the vote row.
+	 *
+	 * We do NOT modify posts.votes here.
+	 *
+	 * The database trigger does that.
 	 */
+
 	const toggleVote = async (postId) => {
 		/*
-		 * Logged-out users cannot vote.
+		 * ----------------------------------------------
+		 * NOT LOGGED IN
+		 * ----------------------------------------------
 		 */
+
 		if (!user) {
 			triggerLoginPrompt();
 
@@ -385,9 +540,11 @@ export const VoteProvider = ({ children }) => {
 		}
 
 		/*
-		 * Prevent rapid double-clicks on the
-		 * same post.
+		 * ----------------------------------------------
+		 * PREVENT DOUBLE CLICK
+		 * ----------------------------------------------
 		 */
+
 		if (votingPostId === postId) {
 			return {
 				error: new Error(
@@ -399,22 +556,37 @@ export const VoteProvider = ({ children }) => {
 
 		setVotingPostId(postId);
 
+		/*
+		 * Read the current local vote state.
+		 *
+		 * This is only determining whether the user
+		 * wants INSERT or DELETE.
+		 */
+
 		const alreadyVoted =
 			votedPostIds.has(postId);
 
 		try {
 			/*
-			 * ------------------------------------------------
+			 * ==========================================
 			 * REMOVE VOTE
-			 * ------------------------------------------------
+			 * ==========================================
 			 */
+
 			if (alreadyVoted) {
-				const { error } =
-					await supabase
-						.from("votes")
-						.delete()
-						.eq("post_id", postId)
-						.eq("user_id", user.id);
+				const {
+					error,
+				} = await supabase
+					.from("votes")
+					.delete()
+					.eq(
+						"post_id",
+						postId
+					)
+					.eq(
+						"user_id",
+						user.id
+					);
 
 				if (error) {
 					console.error(
@@ -429,17 +601,33 @@ export const VoteProvider = ({ children }) => {
 				}
 
 				/*
-				 * Remove from local Set immediately.
+				 * Update local user vote state.
+				 *
+				 * Realtime will also send DELETE,
+				 * but deleting an already-deleted Set
+				 * item is harmless.
 				 */
-				setVotedPostIds((current) => {
-					const next = new Set(
-						current
-					);
 
-					next.delete(postId);
+				setVotedPostIds(
+					(current) => {
+						const next =
+							new Set(
+								current
+							);
 
-					return next;
-				});
+						next.delete(
+							postId
+						);
+
+						return next;
+					}
+				);
+
+				/*
+				 * DO NOT update the post vote count here.
+				 *
+				 * The trigger will update posts.votes.
+				 */
 
 				return {
 					error: null,
@@ -448,17 +636,19 @@ export const VoteProvider = ({ children }) => {
 			}
 
 			/*
-			 * ------------------------------------------------
+			 * ==========================================
 			 * ADD VOTE
-			 * ------------------------------------------------
+			 * ==========================================
 			 */
-			const { error } =
-				await supabase
-					.from("votes")
-					.insert({
-						post_id: postId,
-						user_id: user.id,
-					});
+
+			const {
+				error,
+			} = await supabase
+				.from("votes")
+				.insert({
+					post_id: postId,
+					user_id: user.id,
+				});
 
 			if (error) {
 				console.error(
@@ -473,23 +663,46 @@ export const VoteProvider = ({ children }) => {
 			}
 
 			/*
-			 * Add to local Set immediately.
+			 * Update local user vote state.
+			 *
+			 * Realtime will also send INSERT,
+			 * but Set.add() is idempotent.
 			 */
-			setVotedPostIds((current) => {
-				const next = new Set(current);
 
-				next.add(postId);
+			setVotedPostIds(
+				(current) => {
+					const next =
+						new Set(
+							current
+						);
 
-				/*
-				 * This post has now definitely been
-				 * checked because we just voted for it.
-				 */
-				checkedPostIdsRef.current.add(
-					postId
-				);
+					next.add(
+						postId
+					);
 
-				return next;
-			});
+					checkedPostIdsRef.current.add(
+						postId
+					);
+
+					return next;
+				}
+			);
+
+			/*
+			 * IMPORTANT:
+			 *
+			 * We do NOT increment posts.votes here.
+			 *
+			 * PostgreSQL trigger:
+			 *
+			 * votes INSERT
+			 *       ↓
+			 * COUNT(*)
+			 *       ↓
+			 * posts.votes
+			 *       ↓
+			 * Realtime
+			 */
 
 			return {
 				error: null,
@@ -499,6 +712,12 @@ export const VoteProvider = ({ children }) => {
 			setVotingPostId(null);
 		}
 	};
+
+	/*
+	 * ======================================================
+	 * PROVIDER
+	 * ======================================================
+	 */
 
 	return (
 		<VoteContext.Provider
@@ -511,11 +730,11 @@ export const VoteProvider = ({ children }) => {
 		>
 			{children}
 
-			{/* 
-				================================
-				LOGIN NOTIFICATION
-				================================
-			*/}
+			{/*
+			 * ================================================
+			 * LOGIN NOTIFICATION
+			 * ================================================
+			 */}
 
 			{showLoginPrompt && (
 				<div className="fixed bottom-6 inset-x-0 z-50 flex justify-center pointer-events-none px-4">
@@ -534,19 +753,13 @@ export const VoteProvider = ({ children }) => {
 						`}
 					>
 						<div className="flex items-center gap-3 pl-4 pr-3 py-3 rounded-2xl bg-card border border-border shadow-glow max-w-[calc(100vw-2rem)]">
-							{/* Icon */}
-
 							<div className="w-8 h-8 rounded-full bg-gradient-warm flex items-center justify-center shrink-0">
 								<Heart className="w-4 h-4 text-primary-foreground" />
 							</div>
 
-							{/* Message */}
-
 							<p className="text-sm font-semibold text-foreground whitespace-nowrap">
 								Log in to vote for your favorite pups!
 							</p>
-
-							{/* Login button */}
 
 							<Link
 								to="/login"
@@ -557,8 +770,6 @@ export const VoteProvider = ({ children }) => {
 							>
 								Log in
 							</Link>
-
-							{/* Close button */}
 
 							<button
 								type="button"

@@ -38,8 +38,7 @@ const PostDetailsContent = ({
 	onEdit,
 	onDelete,
 }) => {
-	const { hasVoted, toggleVote, votingPostId } =
-		useVotes();
+	const { hasVoted, toggleVote, votingPostId } = useVotes();
 
 	const { applyVoteDelta } = usePosts();
 
@@ -180,7 +179,7 @@ const PostDetailsContent = ({
 	};
 
 	return (
-		<div
+		<section
 			className={cn(
 				"fixed inset-0 z-50",
 				"flex items-center justify-center",
@@ -240,7 +239,7 @@ const PostDetailsContent = ({
 				</button>
 
 				{/* Scrollable modal */}
-				<div
+				<section
 					className="
 						max-h-[90vh]
 						overflow-y-auto
@@ -248,7 +247,7 @@ const PostDetailsContent = ({
 					"
 				>
 					{/* Image */}
-					<div className="w-full bg-muted flex justify-center">
+					<figure className="w-full bg-muted flex justify-center">
 						<img
 							src={post.image_url}
 							alt={`${post.dog_name}, a dog from ${post.location}`}
@@ -261,17 +260,17 @@ const PostDetailsContent = ({
 								object-contain
 							"
 						/>
-					</div>
+					</figure>
 
 					{/* Post information */}
-					<div className="p-6 sm:p-7">
-						<div className="flex items-start justify-between gap-4 mb-3 pr-10">
+					<article className="p-6 sm:p-7">
+						<header className="flex items-start justify-between gap-4 mb-3 pr-10">
 							<h2 className="text-3xl sm:text-4xl font-bold leading-tight">
 								{post.dog_name}
 							</h2>
 
 							{/* Vote button */}
-							<div
+							<span
 								className="shrink-0"
 								onClick={(event) => {
 									event.stopPropagation();
@@ -287,8 +286,8 @@ const PostDetailsContent = ({
 										post.dog_name
 									}
 								/>
-							</div>
-						</div>
+							</span>
+						</header>
 
 						{/* Owner */}
 						<p className="text-base text-muted-foreground mb-3">
@@ -307,16 +306,16 @@ const PostDetailsContent = ({
 
 						{/* Description */}
 						{post.description && (
-							<div className="border-t border-border pt-5">
+							<section className="border-t border-border pt-5">
 								<p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
 									{post.description}
 								</p>
-							</div>
+							</section>
 						)}
 
 						{/* My Post controls */}
 						{isMyPost && (
-							<div
+							<footer
 								className="
 									mt-6
 									pt-5
@@ -397,11 +396,11 @@ const PostDetailsContent = ({
 										<>🗑️ Delete</>
 									)}
 								</button>
-							</div>
+							</footer>
 						)}
-					</div>
-				</div>
+					</article>
+				</section>
 			</Card>
-		</div>
+		</section>
 	);
 };

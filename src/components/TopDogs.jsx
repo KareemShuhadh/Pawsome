@@ -7,7 +7,7 @@ export const TopDogs = ({
 	if (!posts || posts.length === 0) return null;
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+		<section className="grid grid-cols-1 md:grid-cols-3 gap-6">
 			{posts.map((post, index) => (
 				<PostCard
 					key={post.id}
@@ -17,6 +17,6 @@ export const TopDogs = ({
 					onClick={onPostClick}
 				/>
 			))}
-		</div>
+		</section>
 	);
 };

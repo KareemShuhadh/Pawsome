@@ -46,14 +46,14 @@ export default function MyPosts() {
 	 */
 	if (isLoading) {
 		return (
-			<div className="min-h-screen bg-background pb-16 pt-8">
-				<div className="container mx-auto px-4">
-					<div className="flex items-center gap-2 mb-6">
-						<div className="w-9 h-9 rounded-xl bg-gradient-warm flex items-center justify-center text-white text-lg shadow-glow">
+			<main className="min-h-screen bg-background pb-16 pt-8">
+				<section className="container mx-auto px-4">
+					<header className="flex items-center gap-2 mb-6">
+						<span className="w-9 h-9 rounded-xl bg-gradient-warm flex items-center justify-center text-white text-lg shadow-glow">
 							📝
-						</div>
+						</span>
 
-						<div>
+						<section>
 							<h2 className="text-xl font-bold leading-tight">
 								My Posts
 							</h2>
@@ -61,20 +61,20 @@ export default function MyPosts() {
 							<p className="text-sm text-muted-foreground">
 								Dogs you shared this session
 							</p>
-						</div>
-					</div>
+						</section>
+					</header>
 
-					<div className="text-center py-20">
-						<div className="text-4xl mb-4 animate-pulse">
+					<article className="text-center py-20">
+						<span className="text-4xl mb-4 animate-pulse">
 							🐾
-						</div>
+						</span>
 
 						<p className="text-muted-foreground">
 							Loading your posts...
 						</p>
-					</div>
-				</div>
-			</div>
+					</article>
+				</section>
+			</main>
 		);
 	}
 
@@ -85,14 +85,14 @@ export default function MyPosts() {
 	 */
 	if (!user) {
 		return (
-			<div className="min-h-screen bg-background pb-16 pt-8">
-				<div className="container mx-auto px-4">
-					<div className="flex items-center gap-2 mb-6">
-						<div className="w-9 h-9 rounded-xl bg-gradient-warm flex items-center justify-center text-white text-lg shadow-glow">
+			<main className="min-h-screen bg-background pb-16 pt-8">
+				<section className="container mx-auto px-4">
+					<header className="flex items-center gap-2 mb-6">
+						<span className="w-9 h-9 rounded-xl bg-gradient-warm flex items-center justify-center text-white text-lg shadow-glow">
 							📝
-						</div>
+						</span>
 
-						<div>
+						<section>
 							<h2 className="text-xl font-bold leading-tight">
 								My Posts
 							</h2>
@@ -100,13 +100,13 @@ export default function MyPosts() {
 							<p className="text-sm text-muted-foreground">
 								Dogs you shared this session
 							</p>
-						</div>
-					</div>
+						</section>
+					</header>
 
-					<div className="text-center py-20">
-						<div className="text-5xl mb-4">
+					<article className="text-center py-20">
+						<span className="text-5xl mb-4">
 							🐕
-						</div>
+						</span>
 
 						<h3 className="text-xl font-bold mb-2">
 							Log in to manage your posts
@@ -124,9 +124,9 @@ export default function MyPosts() {
 						>
 							Log in to share your first pup
 						</Link>
-					</div>
-				</div>
-			</div>
+					</article>
+				</section>
+			</main>
 		);
 	}
 
@@ -138,14 +138,14 @@ export default function MyPosts() {
 	 * - User posts have finished loading
 	 */
 	return (
-		<div className="min-h-screen bg-background pb-16 pt-8">
-			<div className="container mx-auto px-4">
-				<div className="flex items-center gap-2 mb-6">
-					<div className="w-9 h-9 rounded-xl bg-gradient-warm flex items-center justify-center text-white text-lg shadow-glow">
+		<main className="min-h-screen bg-background pb-16 pt-8">
+			<section className="container mx-auto px-4">
+				<header className="flex items-center gap-2 mb-6">
+					<span className="w-9 h-9 rounded-xl bg-gradient-warm flex items-center justify-center text-white text-lg shadow-glow">
 						📝
-					</div>
+					</span>
 
-					<div>
+					<section>
 						<h2 className="text-xl font-bold leading-tight">
 							My Posts
 						</h2>
@@ -153,14 +153,14 @@ export default function MyPosts() {
 						<p className="text-sm text-muted-foreground">
 							Dogs you shared this session
 						</p>
-					</div>
-				</div>
+					</section>
+				</header>
 
 				{userPosts.length === 0 ? (
-					<div className="text-center py-20">
-						<div className="text-5xl mb-4">
+					<article className="text-center py-20">
+						<span className="text-5xl mb-4">
 							🐕
-						</div>
+						</span>
 
 						<h3 className="text-xl font-bold mb-2">
 							No posts yet
@@ -176,9 +176,9 @@ export default function MyPosts() {
 						>
 							Share your first pup
 						</Link>
-					</div>
+					</article>
 				) : (
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+					<section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 						{userPosts.map((post) => (
 							<MyPostCard
 								key={post.id}
@@ -188,9 +188,9 @@ export default function MyPosts() {
 								onOpen={setSelectedPost}
 							/>
 						))}
-					</div>
+					</section>
 				)}
-			</div>
+			</section>
 
 			{/* Edit Post Modal */}
 			{editingPost && (
@@ -234,6 +234,6 @@ export default function MyPosts() {
 					return result;
 				}}
 			/>
-		</div>
+		</main>
 	);
 }

@@ -1,30 +1,58 @@
 import { useState } from "react";
+
 import { Link } from "react-router-dom";
+
 import { Card } from "@/components/ui/card";
+
 import { Input } from "@/components/ui/input";
+
 import { Label } from "@/components/ui/label";
+
 import { useAuth } from "@/context/AuthContext";
-import { UserPlus, ArrowLeft, Loader2, Mail, Check } from "lucide-react";
+
+import {
+  UserPlus,
+  ArrowLeft,
+  Loader2,
+  Mail,
+  Check,
+} from "lucide-react";
+
 import { Notification } from "@/components/Notification";
 
 export default function Register() {
   const [name, setName] = useState("");
+
   const [email, setEmail] = useState("");
+
   const [password, setPassword] = useState("");
+
   const [loading, setLoading] = useState(false);
+
   const [sent, setSent] = useState(false);
-  const [notification, setNotification] = useState(null);
+
+  const [notification, setNotification] =
+    useState(null);
 
   const { signUp } = useAuth();
 
   // Password requirements
+
   const hasMinLength = password.length >= 8;
+
   const hasUppercase = /[A-Z]/.test(password);
+
   const hasLowercase = /[a-z]/.test(password);
+
   const hasNumber = /[0-9]/.test(password);
-  const hasSymbol = /[!@#$%^&*()_+\-=[\]{};':"\\|<>?,./`~]/.test(password);
+
+  const hasSymbol =
+    /[!@#$%^&*()_+\-=[\]{};':"\\|<>?,./`~]/.test(
+      password
+    );
 
   // Password strength: 0, 1, 2, or 3 bars
+
   const requirementsMet = [
     hasMinLength,
     hasUppercase,
@@ -43,7 +71,11 @@ export default function Register() {
 
     setLoading(true);
 
-    const { error } = await signUp(email, password, { name });
+    const { error } = await signUp(
+      email,
+      password,
+      { name }
+    );
 
     setLoading(false);
 
@@ -59,13 +91,14 @@ export default function Register() {
   };
 
   // Show confirmation message after successful registration
+
   if (sent) {
     return (
-      <div className="min-h-screen bg-gradient-soft flex items-center justify-center px-4">
-        <div className="w-full max-w-md text-center">
-          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+      <main className="min-h-screen bg-gradient-soft flex items-center justify-center px-4">
+        <section className="w-full max-w-md text-center">
+          <figure className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
             <Mail className="w-10 h-10 text-primary" />
-          </div>
+          </figure>
 
           <h1 className="text-3xl font-bold mb-4">
             Check your email! 📧
@@ -80,8 +113,8 @@ export default function Register() {
           </p>
 
           <p className="text-sm text-muted-foreground mb-8">
-            Click the link in the email to activate your account, then come
-            back and sign in.
+            Click the link in the email to activate
+            your account, then come back and sign in.
           </p>
 
           <Link
@@ -90,14 +123,14 @@ export default function Register() {
           >
             Go to Login
           </Link>
-        </div>
-      </div>
+        </section>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-soft flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <main className="min-h-screen bg-gradient-soft flex items-center justify-center px-4">
+      <section className="w-full max-w-md">
         <Link
           to="/"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary font-bold mb-6 transition-smooth"
@@ -115,62 +148,87 @@ export default function Register() {
             Create an account to save your posts
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
             {/* Name */}
-            <div className="space-y-2">
-              <Label htmlFor="name">Your name</Label>
+
+            <fieldset className="space-y-2">
+              <Label htmlFor="name">
+                Your name
+              </Label>
 
               <Input
                 id="name"
                 required
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) =>
+                  setName(e.target.value)
+                }
                 placeholder="Alex"
               />
-            </div>
+            </fieldset>
 
             {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+
+            <fieldset className="space-y-2">
+              <Label htmlFor="email">
+                Email
+              </Label>
 
               <Input
                 id="email"
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) =>
+                  setEmail(e.target.value)
+                }
                 placeholder="you@example.com"
               />
-            </div>
+            </fieldset>
 
             {/* Password */}
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+
+            <fieldset className="space-y-2">
+              <Label htmlFor="password">
+                Password
+              </Label>
 
               <Input
                 id="password"
                 type="password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
                 placeholder="Create a strong password"
                 minLength={8}
               />
 
               {/* Password strength */}
-              <div className="flex gap-1.5 pt-1" aria-hidden="true">
+
+              <section
+                className="flex gap-1.5 pt-1"
+                aria-hidden="true"
+              >
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
                     className={`h-1.5 flex-1 rounded-full transition-smooth ${
-                      i < strength ? "bg-primary" : "bg-muted"
+                      i < strength
+                        ? "bg-primary"
+                        : "bg-muted"
                     }`}
                   />
                 ))}
-              </div>
+              </section>
 
               {/* Password requirements */}
-              <div className="pt-2 space-y-1.5">
+
+              <section className="pt-2 space-y-1.5">
                 <p className="text-xs font-semibold text-muted-foreground mb-2">
                   Password must contain:
                 </p>
@@ -199,10 +257,11 @@ export default function Register() {
                   met={hasSymbol}
                   text="One symbol"
                 />
-              </div>
-            </div>
+              </section>
+            </fieldset>
 
             {/* Create account */}
+
             <button
               type="submit"
               disabled={loading}
@@ -232,22 +291,26 @@ export default function Register() {
             </Link>
           </p>
         </Card>
-      </div>
+      </section>
 
       {/* Custom notification */}
+
       <Notification
         notification={notification}
-        onDismiss={() => setNotification(null)}
+        onDismiss={() =>
+          setNotification(null)
+        }
       />
-    </div>
+    </main>
   );
 }
 
 /* Password requirement component */
+
 function PasswordRequirement({ met, text }) {
   return (
-    <div className="flex items-center gap-2">
-      <div
+    <article className="flex items-center gap-2">
+      <span
         className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
           met ? "bg-primary" : "bg-muted"
         }`}
@@ -255,7 +318,7 @@ function PasswordRequirement({ met, text }) {
         {met && (
           <Check className="w-3 h-3 text-primary-foreground" />
         )}
-      </div>
+      </span>
 
       <span
         className={`text-xs transition-smooth ${
@@ -266,6 +329,6 @@ function PasswordRequirement({ met, text }) {
       >
         {text}
       </span>
-    </div>
+    </article>
   );
 }

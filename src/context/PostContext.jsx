@@ -1,6 +1,6 @@
 import {
-	useContext,
 	createContext,
+	useContext,
 	useEffect,
 	useState,
 } from "react";
@@ -22,25 +22,14 @@ const PostContext = createContext(null);
  * ======================================================
  */
 
-/*
- * Number of Fresh Pups loaded per request.
- *
- * You can change this to 20 in production.
- */
 const POSTS_PER_PAGE = 2;
 
 /*
  * ======================================================
  * FETCH TOP POSTS
  * ======================================================
- *
- * Top Dogs are GLOBAL.
- *
- * They are completely independent from Fresh Pups.
- *
- * A post does NOT need to be inside the user's currently
- * loaded Fresh Pups feed to appear here.
  */
+
 const fetchTopPosts = async () => {
 	return supabase
 		.from("posts")
@@ -58,9 +47,8 @@ const fetchTopPosts = async () => {
  * ======================================================
  * FETCH FIRST FRESH PAGE
  * ======================================================
- *
- * Gets the newest Fresh Pups.
  */
+
 const fetchInitialFreshPosts = async () => {
 	return supabase
 		.from("posts")
@@ -78,21 +66,8 @@ const fetchInitialFreshPosts = async () => {
  * ======================================================
  * FETCH MORE FRESH POSTS
  * ======================================================
- *
- * Cursor pagination.
- *
- * We fetch posts OLDER than the last post already
- * loaded.
- *
- * This is much safer than offset pagination because
- * new posts can be inserted at the beginning without
- * changing the meaning of the next page.
- *
- * created_at + id are used together as the cursor.
- *
- * `id` is the tie-breaker in case two posts have the
- * exact same created_at timestamp.
  */
+
 const fetchMoreFreshPosts = async (
 	lastCreatedAt,
 	lastId
@@ -108,18 +83,6 @@ const fetchMoreFreshPosts = async (
 		})
 		.limit(POSTS_PER_PAGE);
 
-	/*
-	 * We want:
-	 *
-	 * created_at < lastCreatedAt
-	 *
-	 * OR
-	 *
-	 * created_at = lastCreatedAt AND id < lastId
-	 *
-	 * This continues exactly where the previous page
-	 * stopped.
-	 */
 	query = query.or(
 		`created_at.lt.${lastCreatedAt},and(created_at.eq.${lastCreatedAt},id.lt.${lastId})`
 	);
@@ -128,7 +91,10 @@ const fetchMoreFreshPosts = async (
 };
 
 export const PostProvider = ({ children }) => {
-	const { user, loading: authLoading } = useAuth();
+	const {
+		user,
+		loading: authLoading,
+	} = useAuth();
 
 	/*
 	 * ======================================================
@@ -136,62 +102,23 @@ export const PostProvider = ({ children }) => {
 	 * ======================================================
 	 */
 
-	/*
-	 * Fresh Pups already loaded into this user's feed.
-	 *
-	 * IMPORTANT:
-	 *
-	 * This array is independent from Top Dogs.
-	 *
-	 * Voting does not add/remove posts here.
-	 */
 	const [posts, setPosts] = useState([]);
 
-	/*
-	 * Current GLOBAL Top 3.
-	 */
 	const [topPosts, setTopPosts] = useState([]);
 
-	/*
-	 * Initial Home loading.
-	 */
 	const [loading, setLoading] = useState(true);
 
-	/*
-	 * Load More loading.
-	 */
 	const [loadingMore, setLoadingMore] =
 		useState(false);
 
-	/*
-	 * Whether older Fresh Pups are available.
-	 */
 	const [hasMore, setHasMore] = useState(true);
 
 	/*
 	 * ======================================================
 	 * FRESH PAGINATION CURSOR
 	 * ======================================================
-	 *
-	 * Instead of an offset, we remember the last post
-	 * that was loaded.
-	 *
-	 * Example:
-	 *
-	 * Fresh:
-	 *
-	 * A
-	 * B
-	 *
-	 * Cursor = B
-	 *
-	 * Load More asks:
-	 *
-	 * "Give me posts older than B."
-	 *
-	 * This remains correct even if new posts are added
-	 * above A.
 	 */
+
 	const [freshCursor, setFreshCursor] =
 		useState(null);
 
@@ -213,15 +140,8 @@ export const PostProvider = ({ children }) => {
 	 * ======================================================
 	 * REFRESH TOP POSTS
 	 * ======================================================
-	 *
-	 * ONLY refreshes Top Dogs.
-	 *
-	 * It NEVER changes:
-	 *
-	 * - posts
-	 * - freshCursor
-	 * - hasMore
 	 */
+
 	const refreshTopPosts = async () => {
 		const {
 			data,
@@ -254,23 +174,14 @@ export const PostProvider = ({ children }) => {
 	 * ======================================================
 	 * INITIAL HOME LOAD
 	 * ======================================================
-	 *
-	 * Loads:
-	 *
-	 * 1. Global Top 3
-	 * 2. First Fresh Pups page
-	 *
-	 * These are independent.
 	 */
+
 	useEffect(() => {
 		let cancelled = false;
 
 		const fetchInitialPosts = async () => {
 			setLoading(true);
 
-			/*
-			 * Reset Home state.
-			 */
 			setPosts([]);
 			setTopPosts([]);
 			setFreshCursor(null);
@@ -278,9 +189,10 @@ export const PostProvider = ({ children }) => {
 
 			/*
 			 * ----------------------------------------------
-			 * FETCH GLOBAL TOP 3
+			 * FETCH TOP 3
 			 * ----------------------------------------------
 			 */
+
 			const {
 				data: fetchedTopPosts,
 				error: topPostsError,
@@ -306,6 +218,7 @@ export const PostProvider = ({ children }) => {
 			 * FETCH FIRST FRESH PAGE
 			 * ----------------------------------------------
 			 */
+
 			const {
 				data: fetchedFreshPosts,
 				error: freshPostsError,
@@ -328,30 +241,12 @@ export const PostProvider = ({ children }) => {
 
 				setPosts(freshData);
 
-				/*
-				 * If we received a full page, there MAY
-				 * be another page.
-				 *
-				 * We cannot know for certain without
-				 * asking for one more record.
-				 *
-				 * So we check for one extra record below.
-				 */
 				if (
 					freshData.length <
 					POSTS_PER_PAGE
 				) {
-					/*
-					 * Fewer than a full page means we
-					 * definitely reached the end.
-					 */
 					setHasMore(false);
 				} else {
-					/*
-					 * We got a full page.
-					 *
-					 * Check whether an older post exists.
-					 */
 					const lastPost =
 						freshData[
 							freshData.length - 1
@@ -383,8 +278,9 @@ export const PostProvider = ({ children }) => {
 				}
 
 				/*
-				 * Save the last loaded post as the cursor.
+				 * Save cursor.
 				 */
+
 				if (freshData.length > 0) {
 					const lastPost =
 						freshData[
@@ -413,13 +309,288 @@ export const PostProvider = ({ children }) => {
 
 	/*
 	 * ======================================================
-	 * LOAD MORE FRESH POSTS
+	 * REALTIME POSTS
 	 * ======================================================
 	 *
-	 * Uses the cursor.
+	 * This listens to the `posts` table.
 	 *
-	 * This is the important fix.
+	 * INSERT:
+	 *   Another browser created a post.
+	 *
+	 * UPDATE:
+	 *   Another browser changed a post.
+	 *
+	 *   IMPORTANT:
+	 *
+	 *   Vote changes arrive here because the PostgreSQL
+	 *   trigger updates posts.votes.
+	 *
+	 * DELETE:
+	 *   Another browser deleted a post.
+	 *
+	 * The database row is ALWAYS treated as the source
+	 * of truth.
 	 */
+
+	useEffect(() => {
+		const channel = supabase
+			.channel("posts-realtime")
+			.on(
+				"postgres_changes",
+				{
+					event: "INSERT",
+					schema: "public",
+					table: "posts",
+				},
+				(payload) => {
+					const newPost =
+						payload.new;
+
+					if (!newPost?.id) {
+						return;
+					}
+
+					console.log(
+						"Realtime posts INSERT:",
+						newPost
+					);
+
+					/*
+					 * ------------------------------------------
+					 * FRESH PUPS
+					 * ------------------------------------------
+					 *
+					 * New posts are newest, so put them first.
+					 *
+					 * Prevent duplicate because addPost()
+					 * may already have inserted it locally.
+					 */
+
+					setPosts((currentPosts) => {
+						const alreadyExists =
+							currentPosts.some(
+								(post) =>
+									post.id ===
+									newPost.id
+							);
+
+						if (alreadyExists) {
+							return currentPosts;
+						}
+
+						return [
+							newPost,
+							...currentPosts,
+						];
+					});
+
+					/*
+					 * ------------------------------------------
+					 * MY POSTS
+					 * ------------------------------------------
+					 */
+
+					if (
+						user?.id &&
+						newPost.user_id ===
+							user.id
+					) {
+						setUserPosts(
+							(currentPosts) => {
+								const alreadyExists =
+									currentPosts.some(
+										(post) =>
+											post.id ===
+											newPost.id
+									);
+
+								if (
+									alreadyExists
+								) {
+									return currentPosts;
+								}
+
+								return [
+									newPost,
+									...currentPosts,
+								];
+							}
+						);
+					}
+
+					/*
+					 * A new post could affect Top Dogs.
+					 *
+					 * Fetch the real global Top 3.
+					 */
+
+					refreshTopPosts();
+				}
+			)
+			.on(
+				"postgres_changes",
+				{
+					event: "UPDATE",
+					schema: "public",
+					table: "posts",
+				},
+				(payload) => {
+					const updatedPost =
+						payload.new;
+
+					if (!updatedPost?.id) {
+						return;
+					}
+
+					console.log(
+						"Realtime posts UPDATE:",
+						updatedPost
+					);
+
+					/*
+					 * ------------------------------------------
+					 * FRESH PUPS
+					 * ------------------------------------------
+					 *
+					 * Replace the complete row.
+					 *
+					 * This is important.
+					 *
+					 * We DO NOT do:
+					 *
+					 * votes + 1
+					 *
+					 * or:
+					 *
+					 * votes - 1
+					 *
+					 * PostgreSQL already calculated the
+					 * authoritative count.
+					 */
+
+					setPosts((currentPosts) =>
+						currentPosts.map(
+							(post) =>
+								post.id ===
+								updatedPost.id
+									? updatedPost
+									: post
+						)
+					);
+
+					/*
+					 * ------------------------------------------
+					 * MY POSTS
+					 * ------------------------------------------
+					 */
+
+					setUserPosts((currentPosts) =>
+						currentPosts.map(
+							(post) =>
+								post.id ===
+								updatedPost.id
+									? updatedPost
+									: post
+						)
+					);
+
+					/*
+					 * ------------------------------------------
+					 * TOP DOGS
+					 * ------------------------------------------
+					 *
+					 * Re-fetch the real global Top 3.
+					 *
+					 * This handles a post entering/leaving
+					 * the Top 3 because of a vote.
+					 */
+
+					refreshTopPosts();
+				}
+			)
+			.on(
+				"postgres_changes",
+				{
+					event: "DELETE",
+					schema: "public",
+					table: "posts",
+				},
+				(payload) => {
+					const deletedPost =
+						payload.old;
+
+					if (!deletedPost?.id) {
+						return;
+					}
+
+					console.log(
+						"Realtime posts DELETE:",
+						deletedPost
+					);
+
+					/*
+					 * Remove from Fresh Pups.
+					 */
+
+					setPosts((currentPosts) =>
+						currentPosts.filter(
+							(post) =>
+								post.id !==
+								deletedPost.id
+						)
+					);
+
+					/*
+					 * Remove from My Posts.
+					 */
+
+					setUserPosts((currentPosts) =>
+						currentPosts.filter(
+							(post) =>
+								post.id !==
+								deletedPost.id
+						)
+					);
+
+					/*
+					 * Remove from Top Dogs.
+					 */
+
+					setTopPosts(
+						(currentTopPosts) =>
+							currentTopPosts.filter(
+								(post) =>
+									post.id !==
+									deletedPost.id
+							)
+					);
+
+					/*
+					 * Re-fetch Top Dogs because another
+					 * post may now enter the Top 3.
+					 */
+
+					refreshTopPosts();
+				}
+			)
+			.subscribe((status) => {
+				console.log(
+					"Posts realtime status:",
+					status
+				);
+			});
+
+		return () => {
+			supabase.removeChannel(channel);
+		};
+	}, [user?.id]);
+
+	/*
+	 * ======================================================
+	 * LOAD MORE FRESH POSTS
+	 * ======================================================
+	 */
+
 	const loadMorePosts = async () => {
 		if (
 			loadingMore ||
@@ -457,9 +628,6 @@ export const PostProvider = ({ children }) => {
 
 			const freshData = data || [];
 
-			/*
-			 * Nothing older exists.
-			 */
 			if (freshData.length === 0) {
 				setHasMore(false);
 
@@ -469,13 +637,6 @@ export const PostProvider = ({ children }) => {
 				};
 			}
 
-			/*
-			 * Add older posts to the END.
-			 *
-			 * IMPORTANT:
-			 *
-			 * We don't replace the existing feed.
-			 */
 			setPosts((currentPosts) => {
 				const existingIds = new Set(
 					currentPosts.map(
@@ -497,9 +658,6 @@ export const PostProvider = ({ children }) => {
 				];
 			});
 
-			/*
-			 * Move cursor to the last returned post.
-			 */
 			const lastPost =
 				freshData[
 					freshData.length - 1
@@ -511,16 +669,6 @@ export const PostProvider = ({ children }) => {
 				id: lastPost.id,
 			});
 
-			/*
-			 * If we received fewer than a full page,
-			 * we reached the end.
-			 *
-			 * If we received exactly a full page,
-			 * keep the button available.
-			 *
-			 * The next request will definitively tell us
-			 * whether another page exists.
-			 */
 			setHasMore(
 				freshData.length ===
 					POSTS_PER_PAGE
@@ -550,6 +698,7 @@ export const PostProvider = ({ children }) => {
 	 * USER POSTS
 	 * ======================================================
 	 */
+
 	useEffect(() => {
 		if (authLoading) return;
 
@@ -605,6 +754,7 @@ export const PostProvider = ({ children }) => {
 	 * CREATE POST
 	 * ======================================================
 	 */
+
 	const addPost = async (post) => {
 		if (!user) {
 			return {
@@ -624,9 +774,6 @@ export const PostProvider = ({ children }) => {
 			let imageUrl = null;
 			let imagePublicId = null;
 
-			/*
-			 * Process and upload image.
-			 */
 			if (image) {
 				const optimizedImage =
 					await processImage(image);
@@ -644,9 +791,6 @@ export const PostProvider = ({ children }) => {
 					cloudinaryResult.imagePublicId;
 			}
 
-			/*
-			 * Create database post.
-			 */
 			const {
 				data,
 				error,
@@ -676,24 +820,12 @@ export const PostProvider = ({ children }) => {
 			}
 
 			/*
-			 * ==================================================
-			 * FRESH PUPS
-			 * ==================================================
+			 * Keep the local UI responsive.
 			 *
-			 * New posts are the newest posts.
-			 *
-			 * Put it at the beginning.
-			 *
-			 * IMPORTANT:
-			 *
-			 * We do NOT modify the cursor.
-			 *
-			 * The cursor represents the OLDEST post loaded,
-			 * not the number of items in the array.
-			 *
-			 * This is one of the major benefits of cursor
-			 * pagination.
+			 * Realtime will also receive the INSERT,
+			 * but its handler prevents duplicates.
 			 */
+
 			setPosts((currentPosts) => {
 				const alreadyExists =
 					currentPosts.some(
@@ -712,36 +844,24 @@ export const PostProvider = ({ children }) => {
 				];
 			});
 
-			/*
-			 * A new post exists, so even if the user had
-			 * previously reached the end, the feed now
-			 * has a new item.
-			 *
-			 * HOWEVER:
-			 *
-			 * The new item is already inserted directly
-			 * into Fresh Pups, so we don't need to change
-			 * the cursor or fetch it again.
-			 */
-			setHasMore((currentHasMore) => {
-				/*
-				 * If there were already older posts,
-				 * preserve the current state.
-				 */
-				return currentHasMore;
+			setUserPosts((currentPosts) => {
+				const alreadyExists =
+					currentPosts.some(
+						(existingPost) =>
+							existingPost.id ===
+							data.id
+					);
+
+				if (alreadyExists) {
+					return currentPosts;
+				}
+
+				return [
+					data,
+					...currentPosts,
+				];
 			});
 
-			/*
-			 * Add to My Posts.
-			 */
-			setUserPosts((currentPosts) => [
-				data,
-				...currentPosts,
-			]);
-
-			/*
-			 * Refresh global Top Dogs.
-			 */
 			await refreshTopPosts();
 
 			return {
@@ -766,6 +886,7 @@ export const PostProvider = ({ children }) => {
 	 * UPDATE POST
 	 * ======================================================
 	 */
+
 	const updatePost = async (
 		id,
 		updates
@@ -787,9 +908,10 @@ export const PostProvider = ({ children }) => {
 
 			/*
 			 * ----------------------------------------------
-			 * CASE 1: NO NEW IMAGE
+			 * NO NEW IMAGE
 			 * ----------------------------------------------
 			 */
+
 			if (!image) {
 				const {
 					data,
@@ -814,10 +936,6 @@ export const PostProvider = ({ children }) => {
 					};
 				}
 
-				/*
-				 * Update Fresh Pups ONLY if it is already
-				 * loaded.
-				 */
 				setPosts((currentPosts) =>
 					currentPosts.map(
 						(post) =>
@@ -827,9 +945,6 @@ export const PostProvider = ({ children }) => {
 					)
 				);
 
-				/*
-				 * Update My Posts.
-				 */
 				setUserPosts(
 					(currentPosts) =>
 						currentPosts.map(
@@ -841,9 +956,6 @@ export const PostProvider = ({ children }) => {
 						)
 				);
 
-				/*
-				 * Top Dogs are global.
-				 */
 				await refreshTopPosts();
 
 				return {
@@ -854,7 +966,7 @@ export const PostProvider = ({ children }) => {
 
 			/*
 			 * ----------------------------------------------
-			 * CASE 2: NEW IMAGE
+			 * NEW IMAGE
 			 * ----------------------------------------------
 			 */
 
@@ -939,9 +1051,6 @@ export const PostProvider = ({ children }) => {
 				};
 			}
 
-			/*
-			 * Delete old image.
-			 */
 			if (
 				oldImagePublicId &&
 				oldImagePublicId !==
@@ -960,9 +1069,6 @@ export const PostProvider = ({ children }) => {
 				}
 			}
 
-			/*
-			 * Update Fresh Pups ONLY if already loaded.
-			 */
 			setPosts((currentPosts) =>
 				currentPosts.map((post) =>
 					post.id === id
@@ -971,9 +1077,6 @@ export const PostProvider = ({ children }) => {
 				)
 			);
 
-			/*
-			 * Update My Posts.
-			 */
 			setUserPosts((currentPosts) =>
 				currentPosts.map((post) =>
 					post.id === id
@@ -1006,6 +1109,7 @@ export const PostProvider = ({ children }) => {
 	 * DELETE POST
 	 * ======================================================
 	 */
+
 	const deletePost = async (id) => {
 		if (!user) {
 			return {
@@ -1016,9 +1120,6 @@ export const PostProvider = ({ children }) => {
 		}
 
 		try {
-			/*
-			 * Get Cloudinary public ID.
-			 */
 			const {
 				data: post,
 				error: fetchError,
@@ -1040,9 +1141,6 @@ export const PostProvider = ({ children }) => {
 				};
 			}
 
-			/*
-			 * Delete Cloudinary image.
-			 */
 			if (post?.image_public_id) {
 				await deleteImage(
 					post.image_public_id,
@@ -1050,9 +1148,6 @@ export const PostProvider = ({ children }) => {
 				);
 			}
 
-			/*
-			 * Delete database post.
-			 */
 			const {
 				error,
 			} = await supabase
@@ -1073,41 +1168,30 @@ export const PostProvider = ({ children }) => {
 			}
 
 			/*
-			 * Remove from Fresh Pups if loaded.
+			 * Local update.
 			 *
-			 * DO NOT modify the cursor.
-			 *
-			 * The cursor belongs to the last position
-			 * in the chronological feed, not the number
-			 * of loaded array items.
+			 * Realtime will also send DELETE,
+			 * but filtering is idempotent.
 			 */
+
 			setPosts((currentPosts) =>
 				currentPosts.filter(
 					(post) => post.id !== id
 				)
 			);
 
-			/*
-			 * Remove from My Posts.
-			 */
 			setUserPosts((currentPosts) =>
 				currentPosts.filter(
 					(post) => post.id !== id
 				)
 			);
 
-			/*
-			 * Remove from current Top Dogs.
-			 */
 			setTopPosts((currentTopPosts) =>
 				currentTopPosts.filter(
 					(post) => post.id !== id
 				)
 			);
 
-			/*
-			 * Refresh global Top Dogs.
-			 */
 			await refreshTopPosts();
 
 			return {
@@ -1130,110 +1214,34 @@ export const PostProvider = ({ children }) => {
 	 * APPLY VOTE DELTA
 	 * ======================================================
 	 *
-	 * Voting NEVER changes Fresh Pups membership.
+	 * IMPORTANT:
 	 *
-	 * If the post is loaded in Fresh Pups:
+	 * Realtime now handles vote-count synchronization.
 	 *
-	 *   update its vote count
+	 * PostgreSQL is responsible for:
 	 *
-	 * If it is NOT loaded:
+	 * votes table
+	 *      ↓
+	 * trigger
+	 *      ↓
+	 * posts.votes
+	 *      ↓
+	 * Realtime
 	 *
-	 *   do nothing to Fresh Pups
+	 * Therefore this function should NOT be called
+	 * after voting anymore.
 	 *
-	 * Top Dogs are refreshed globally.
+	 * It remains here temporarily so existing components
+	 * that import it do not immediately break.
 	 */
-	const applyVoteDelta = async (
-		postId,
-		delta
-	) => {
-		const adjust = (post) =>
-			post.id === postId
-				? {
-						...post,
-						votes: Math.max(
-							0,
-							(post.votes ?? 0) +
-								delta
-						),
-				  }
-				: post;
 
+	const applyVoteDelta = async () => {
 		/*
-		 * ----------------------------------------------
-		 * FRESH PUPS
-		 * ----------------------------------------------
+		 * Do nothing.
 		 *
-		 * Only update the vote count.
-		 *
-		 * NEVER add/remove/reorder.
+		 * The database + Realtime now owns this.
 		 */
-		setPosts((currentPosts) =>
-			currentPosts.map(adjust)
-		);
-
-		/*
-		 * ----------------------------------------------
-		 * MY POSTS
-		 * ----------------------------------------------
-		 */
-		setUserPosts((currentPosts) =>
-			currentPosts.map(adjust)
-		);
-
-		/*
-		 * ----------------------------------------------
-		 * TOP DOGS
-		 * ----------------------------------------------
-		 *
-		 * First make the UI responsive.
-		 */
-		setTopPosts((currentTopPosts) =>
-			currentTopPosts
-				.map(adjust)
-				.sort((a, b) => {
-					const voteDifference =
-						(b.votes ?? 0) -
-						(a.votes ?? 0);
-
-					if (
-						voteDifference !==
-						0
-					) {
-						return voteDifference;
-					}
-
-					return (
-						new Date(
-							b.created_at
-						) -
-						new Date(
-							a.created_at
-						)
-					);
-				})
-		);
-
-		/*
-		 * ----------------------------------------------
-		 * GLOBAL TOP 3 REFRESH
-		 * ----------------------------------------------
-		 *
-		 * This is critical.
-		 *
-		 * Suppose User A only loaded posts 1-20.
-		 *
-		 * Post 22 is NOT in their Fresh Pups.
-		 *
-		 * User B votes for post 22.
-		 *
-		 * Post 22 becomes a Top Dog.
-		 *
-		 * User A can now see post 22 in Top Dogs,
-		 * even though post 22 is not in Fresh Pups.
-		 *
-		 * It is NOT inserted into Fresh Pups.
-		 */
-		await refreshTopPosts();
+		return;
 	};
 
 	/*
@@ -1241,64 +1249,37 @@ export const PostProvider = ({ children }) => {
 	 * PROVIDER
 	 * ======================================================
 	 */
+
 	return (
 		<PostContext.Provider
 			value={{
-				/*
-				 * Fresh Pups
-				 */
 				posts,
 
-				/*
-				 * Global Top Dogs
-				 */
 				topPosts,
 
-				/*
-				 * Initial loading
-				 */
 				loading,
 
-				/*
-				 * Load More loading
-				 */
 				loadingMore,
 
-				/*
-				 * Older Fresh Pups available
-				 */
 				hasMore,
 
-				/*
-				 * Load older Fresh Pups
-				 */
 				loadMorePosts,
 
-				/*
-				 * Refresh Top Dogs
-				 */
 				refreshTopPosts,
 
-				/*
-				 * User posts
-				 */
 				userPosts,
 
-				/*
-				 * User posts loading
-				 */
 				userPostsLoading:
 					isUserPostsLoading,
 
-				/*
-				 * CRUD
-				 */
 				addPost,
 				updatePost,
 				deletePost,
 
 				/*
-				 * Voting
+				 * Kept for compatibility.
+				 *
+				 * Do not use this for vote synchronization.
 				 */
 				applyVoteDelta,
 			}}

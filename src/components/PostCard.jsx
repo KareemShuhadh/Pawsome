@@ -4,7 +4,6 @@ import { MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VoteButton } from "@/components/VoteButton";
 import { useVotes } from "@/context/VoteContext";
-import { usePosts } from "@/context/PostContext";
 
 export const PostCard = ({
 	post,
@@ -13,8 +12,11 @@ export const PostCard = ({
 	onClick,
 	extraContent,
 }) => {
-	const { hasVoted, toggleVote, votingPostId } = useVotes();
-	const { applyVoteDelta } = usePosts();
+	const {
+		hasVoted,
+		toggleVote,
+		votingPostId,
+	} = useVotes();
 
 	const [pulsing, setPulsing] = useState(false);
 
@@ -30,19 +32,10 @@ export const PostCard = ({
 			setPulsing(false);
 		}, 400);
 
-		const { error, action } = await toggleVote(post.id);
+		const { error } = await toggleVote(post.id);
 
 		if (error) {
 			console.error("Vote failed:", error);
-			return;
-		}
-
-		if (action === "added") {
-			applyVoteDelta(post.id, 1);
-		}
-
-		if (action === "removed") {
-			applyVoteDelta(post.id, -1);
 		}
 	};
 
@@ -52,11 +45,9 @@ export const PostCard = ({
 		}
 	};
 
-	/*
-	 * Show only a short preview of the description.
-	 */
 	const descriptionPreview =
-		post.description && post.description.length > 68
+		post.description &&
+		post.description.length > 68
 			? `${post.description.slice(0, 68).trim()}...`
 			: post.description;
 
@@ -83,10 +74,9 @@ export const PostCard = ({
 					"border-primary/40 shadow-glow"
 			)}
 		>
-			{/* Image */}
-			<div className="relative aspect-square overflow-hidden bg-muted">
+			<figure className="relative aspect-square overflow-hidden bg-muted">
 				{rank && (
-					<div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-warm text-primary-foreground font-bold shadow-glow text-sm">
+					<span className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-warm text-primary-foreground font-bold shadow-glow text-sm">
 						{rank === 1
 							? "🥇"
 							: rank === 2
@@ -95,7 +85,7 @@ export const PostCard = ({
 									? "🥉"
 									: `#${rank}`}{" "}
 						Top Dog
-					</div>
+					</span>
 				)}
 
 				<img
@@ -104,17 +94,15 @@ export const PostCard = ({
 					loading="lazy"
 					className="w-full h-full object-cover transition-smooth group-hover:scale-105"
 				/>
-			</div>
+			</figure>
 
-			{/* Post information */}
-			<div className="p-5">
-				<div className="flex items-start justify-between gap-3 mb-2">
+			<article className="p-5">
+				<header className="flex items-start justify-between gap-3 mb-2">
 					<h3 className="text-2xl font-bold leading-tight">
 						{post.dog_name}
 					</h3>
 
-					{/* Stop vote button from triggering card click */}
-					<div
+					<span
 						onClick={(e) => {
 							e.stopPropagation();
 						}}
@@ -127,10 +115,9 @@ export const PostCard = ({
 							onClick={onVote}
 							dogName={post.dog_name}
 						/>
-					</div>
-				</div>
+					</span>
+				</header>
 
-				{/* Owner */}
 				<p className="text-sm text-muted-foreground mb-2">
 					with{" "}
 					<span className="font-semibold text-foreground">
@@ -138,38 +125,34 @@ export const PostCard = ({
 					</span>
 				</p>
 
-				{/* Location */}
 				<p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
 					<MapPin className="w-3.5 h-3.5" />
 					{post.location}
 				</p>
 
-				{/* Description */}
 				{post.description && (
 					<p className="text-sm text-foreground/80 leading-relaxed">
 						{descriptionPreview}
 					</p>
 				)}
 
-				{/* Details link */}
 				{onClick && post.description && (
 					<p className="text-xs text-primary font-semibold mt-2">
 						Click to see full post →
 					</p>
 				)}
 
-				{/* Extra content such as Edit/Delete buttons */}
 				{extraContent && (
-					<div
+					<footer
 						className="mt-4 pt-4 border-t border-border flex justify-end gap-2"
 						onClick={(event) => {
 							event.stopPropagation();
 						}}
 					>
 						{extraContent}
-					</div>
+					</footer>
 				)}
-			</div>
+			</article>
 		</Card>
 	);
 };
