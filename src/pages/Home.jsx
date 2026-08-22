@@ -8,14 +8,17 @@ import { PostDetailsModal } from "@/components/PostDetailsModal";
 import { usePosts } from "@/context/PostContext";
 
 export default function Home() {
-	const { posts, loading } = usePosts();
+	const {
+		posts,
+		topPosts,
+		loading,
+		loadingMore,
+		hasMore,
+		loadMorePosts,
+	} = usePosts();
 
 	const [selectedPost, setSelectedPost] =
 		useState(null);
-
-	const topDogs = [...posts]
-		.sort((a, b) => b.votes - a.votes)
-		.slice(0, 3);
 
 	const handlePostClick = (post) => {
 		setSelectedPost(post);
@@ -40,7 +43,9 @@ export default function Home() {
 			<WelcomeBanner />
 
 			<div className="container mx-auto px-4">
-				{/* Top Dogs */}
+				{/* ================================
+				    Top Dogs
+				    ================================ */}
 				<div className="mt-8 mb-4">
 					<div className="flex items-center gap-2 mb-4">
 						<div className="w-9 h-9 rounded-xl bg-gradient-warm flex items-center justify-center text-white text-lg shadow-glow">
@@ -59,12 +64,14 @@ export default function Home() {
 					</div>
 
 					<TopDogs
-						posts={topDogs}
+						posts={topPosts}
 						onPostClick={handlePostClick}
 					/>
 				</div>
 
-				{/* Fresh Pups */}
+				{/* ================================
+				    Fresh Pups
+				    ================================ */}
 				<div className="mt-10 mb-4">
 					<div className="flex items-center gap-2 mb-6">
 						<div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center text-white text-lg">
@@ -82,19 +89,57 @@ export default function Home() {
 						</div>
 					</div>
 
-					<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-						{posts.map((post) => (
-							<PostCard
-								key={post.id}
-								post={post}
-								onClick={handlePostClick}
-							/>
-						))}
-					</div>
+					{posts.length > 0 ? (
+						<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+							{posts.map((post) => (
+								<PostCard
+									key={post.id}
+									post={post}
+									onClick={
+										handlePostClick
+									}
+								/>
+							))}
+						</div>
+					) : (
+						<div className="text-center py-12 text-muted-foreground">
+							<div className="text-4xl mb-3">
+								🐶
+							</div>
+
+							<p className="font-semibold">
+								No fresh pups yet.
+							</p>
+
+							<p className="text-sm mt-1">
+								Be the first to add one!
+							</p>
+						</div>
+					)}
+
+					{/* ================================
+					    Load More
+					    ================================ */}
+					{hasMore && (
+						<div className="flex justify-center mt-8">
+							<button
+								type="button"
+								onClick={loadMorePosts}
+								disabled={loadingMore}
+								className="px-6 py-3 rounded-full bg-primary text-primary-foreground font-bold shadow-soft hover:-translate-y-0.5 transition-bounce disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+							>
+								{loadingMore
+									? "Loading..."
+									: "Load More"}
+							</button>
+						</div>
+					)}
 				</div>
 			</div>
 
-			{/* Post details */}
+			{/* ================================
+			    Post Details
+			    ================================ */}
 			<PostDetailsModal
 				post={selectedPost}
 				open={Boolean(selectedPost)}

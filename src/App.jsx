@@ -16,8 +16,9 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
-          <VoteProvider>
+          
             <PostProvider>
+              <VoteProvider>
               <Navbar />
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -27,8 +28,9 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
               </Routes>
+              </VoteProvider>
             </PostProvider>
-          </VoteProvider>
+          
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>
