@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { PostProvider } from "@/context/PostContext";
 import { VoteProvider } from "@/context/VoteContext";
+import { PromotionProvider } from "@/context/PromotionContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { Navbar } from "@/components/Navbar";
 import Home from "@/pages/Home";
@@ -16,7 +17,7 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
-          
+          <PromotionProvider>
             <PostProvider>
               <VoteProvider>
               <Navbar />
@@ -30,7 +31,7 @@ function App() {
               </Routes>
               </VoteProvider>
             </PostProvider>
-          
+          </PromotionProvider>
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>

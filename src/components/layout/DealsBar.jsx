@@ -1,67 +1,262 @@
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Tag } from "lucide-react";
+import { useState } from "react";
 
-// TODO: Connect to a "deals" table in Supabase later
-// For now, this is a visual placeholder showing how sponsored deals will look
+import {
+	ChevronLeft,
+	ChevronRight,
+} from "lucide-react";
 
-const dummyDeals = [
-  {
-    id: "d1",
-    shop_name: "Pawfect Treats",
-    offer: "20% off organic dog biscuits",
-    code: "PAWSOME20",
-    link: "#",
-    color: "bg-orange-100 text-orange-700",
-  },
-  {
-    id: "d2",
-    shop_name: "Bark & Style",
-    offer: "Free collar engraving",
-    code: "BARKFREE",
-    link: "#",
-    color: "bg-teal-100 text-teal-700",
-  },
-  {
-    id: "d3",
-    shop_name: "Doggo Gear",
-    offer: "Buy 1 leash, get 1 toy free",
-    code: "DOUBLEDOG",
-    link: "#",
-    color: "bg-amber-100 text-amber-700",
-  },
-];
+import { useNavigate } from "react-router-dom";
 
-export const DealsBar = () => {
-  return (
-    <div className="mb-10">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-9 h-9 rounded-xl bg-gradient-warm flex items-center justify-center text-white text-lg shadow-glow">
-          <Tag className="w-5 h-5" />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold leading-tight">Community Deals</h2>
-          <p className="text-sm text-muted-foreground">Exclusive offers for Pawsome members</p>
-        </div>
-      </div>
+import { PromotionCard } from "@/components/PromotionCard";
+import { UnlockOfferModal } from "@/components/UnlockOfferModal";
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {dummyDeals.map((deal) => (
-          <Card
-            key={deal.id}
-            className="p-5 border-2 border-border/60 shadow-soft hover:shadow-card hover:-translate-y-1 transition-bounce cursor-pointer group"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <h3 className="font-bold text-lg">{deal.shop_name}</h3>
-              <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-smooth" />
-            </div>
-            <p className="text-sm text-foreground/80 mb-3">{deal.offer}</p>
-            <Badge className={`${deal.color} font-bold`}>
-              Code: {deal.code}
-            </Badge>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-};
+import { usePromotions } from "@/context/PromotionContext";
+import { useAuth } from "@/context/AuthContext";
+
+export default function DealsBar() {
+	const {
+		promotions,
+		loading,
+		error,
+	} = usePromotions();
+
+	const { user } = useAuth();
+
+	const navigate = useNavigate();
+
+	const [currentIndex, setCurrentIndex] =
+		useState(0);
+
+	const [showUnlockModal, setShowUnlockModal] =
+		useState(false);
+
+	const handlePrevious = () => {
+		if (promotions.length <= 1) {
+			return;
+		}
+
+		setCurrentIndex((current) =>
+			current === 0
+				? promotions.length - 1
+				: current - 1
+		);
+	};
+
+	const handleNext = () => {
+		if (promotions.length <= 1) {
+			return;
+		}
+
+		setCurrentIndex((current) =>
+			current === promotions.length - 1
+				? 0
+				: current + 1
+		);
+	};
+
+	const handleUnlock = () => {
+		setShowUnlockModal(true);
+	};
+
+	const handleLogin = () => {
+		setShowUnlockModal(false);
+		navigate("/login");
+	};
+
+	const handleRegister = () => {
+		setShowUnlockModal(false);
+		navigate("/register");
+	};
+
+	/*
+	 * Initial loading state.
+	 */
+	if (loading) {
+		return (
+			<section
+				aria-labelledby="community-offers-heading"
+				className="container mx-auto mt-8 px-4"
+			>
+				<header className="mb-4">
+					<h2
+						id="community-offers-heading"
+						className="text-xl font-bold leading-tight"
+					>
+						✨ Community Offers
+					</h2>
+
+					<p className="text-sm text-muted-foreground">
+						Special offers for Pawsome members
+					</p>
+				</header>
+
+				<section
+					className="flex min-h-96 items-center justify-center rounded-xl bg-muted"
+					aria-live="polite"
+				>
+					<p className="font-semibold text-muted-foreground">
+						Loading offers...
+					</p>
+				</section>
+			</section>
+		);
+	}
+
+	/*
+	 * Show an error only when there are
+	 * no promotions available.
+	 */
+	if (
+		error &&
+		promotions.length === 0
+	) {
+		return (
+			<section
+				aria-labelledby="community-offers-heading"
+				className="container mx-auto mt-8 px-4"
+			>
+				<header className="mb-4">
+					<h2
+						id="community-offers-heading"
+						className="text-xl font-bold leading-tight"
+					>
+						✨ Community Offers
+					</h2>
+
+					<p className="text-sm text-muted-foreground">
+						Special offers for Pawsome members
+					</p>
+				</header>
+
+				<section
+					className="rounded-xl bg-muted p-6 text-center"
+					role="alert"
+				>
+					<p className="font-semibold">
+						We couldn't load the offers right now.
+					</p>
+
+					<p className="mt-1 text-sm text-muted-foreground">
+						Please try again later.
+					</p>
+				</section>
+			</section>
+		);
+	}
+
+	/*
+	 * Nothing to display.
+	 */
+	if (promotions.length === 0) {
+		return null;
+	}
+
+	/*
+	 * Make sure the current index is valid
+	 * even if a promotion disappears because
+	 * its end time has been reached.
+	 */
+	const safeIndex = Math.min(
+		currentIndex,
+		promotions.length - 1
+	);
+
+	const currentPromotion =
+		promotions[safeIndex];
+
+	return (
+		<>
+			<section
+				aria-labelledby="community-offers-heading"
+				className="container mx-auto mt-8 px-4"
+			>
+				<header className="mb-4">
+					<h2
+						id="community-offers-heading"
+						className="text-xl font-bold leading-tight"
+					>
+						✨ Community Offers
+					</h2>
+
+					<p className="text-sm text-muted-foreground">
+						Special offers for Pawsome members
+					</p>
+				</header>
+
+				<section
+					className="relative"
+					aria-label="Community offers"
+				>
+					<PromotionCard
+						promotion={currentPromotion}
+						isLoggedIn={Boolean(user)}
+						onUnlock={handleUnlock}
+					/>
+
+					{promotions.length > 1 && (
+						<>
+							<button
+								type="button"
+								onClick={handlePrevious}
+								aria-label="Previous offer"
+								className="absolute left-3 top-1/2 z-30 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/90 text-foreground shadow-soft backdrop-blur-sm transition-bounce hover:scale-105 hover:bg-background hover:shadow-card sm:left-4 sm:size-10"
+							>
+								<ChevronLeft className="size-5" />
+							</button>
+
+							<button
+								type="button"
+								onClick={handleNext}
+								aria-label="Next offer"
+								className="absolute right-3 top-1/2 z-30 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/90 text-foreground shadow-soft backdrop-blur-sm transition-bounce hover:scale-105 hover:bg-background hover:shadow-card sm:right-4 sm:size-10"
+							>
+								<ChevronRight className="size-5" />
+							</button>
+						</>
+					)}
+				</section>
+
+				{promotions.length > 1 && (
+					<nav
+						aria-label="Choose community offer"
+						className="mt-4 flex justify-center gap-2"
+					>
+						{promotions.map(
+							(promotion, index) => (
+								<button
+									key={promotion.id}
+									type="button"
+									onClick={() =>
+										setCurrentIndex(index)
+									}
+									aria-label={`Show offer ${
+										index + 1
+									}`}
+									aria-current={
+										index === safeIndex
+											? "true"
+											: undefined
+									}
+									className={`h-2.5 rounded-full transition-all duration-300 ${
+										index === safeIndex
+											? "w-7 bg-primary shadow-glow"
+											: "w-2.5 bg-border hover:bg-muted-foreground"
+									}`}
+								/>
+							)
+						)}
+					</nav>
+				)}
+			</section>
+
+			<UnlockOfferModal
+				open={showUnlockModal}
+				onClose={() =>
+					setShowUnlockModal(false)
+				}
+				onLogin={handleLogin}
+				onRegister={handleRegister}
+			/>
+		</>
+	);
+}

@@ -9,12 +9,12 @@ export const Notification = ({
 	if (!notification) return null;
 
 	return (
-		<aside className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-float-up flex items-center gap-3 pl-4 pr-3 py-3 rounded-2xl bg-card border border-border shadow-glow max-w-[calc(100vw-2rem)]">
-			<span className="w-8 h-8 rounded-full bg-gradient-warm flex items-center justify-center shrink-0">
+		<aside className="fixed bottom-6 left-1/2 z-50 flex w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center gap-3 rounded-2xl border border-border bg-card py-3 pl-4 pr-3 shadow-glow animate-float-up">
+			<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-warm">
 				<NotificationIcon type={notification.type} />
 			</span>
 
-			<p className="text-sm font-semibold text-foreground">
+			<p className="whitespace-nowrap text-sm font-semibold text-foreground">
 				{notification.message}
 			</p>
 
@@ -22,7 +22,7 @@ export const Notification = ({
 				<Link
 					to={notification.action.to}
 					onClick={onDismiss}
-					className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-sm font-bold shadow-soft hover:-translate-y-0.5 transition-bounce shrink-0"
+					className="shrink-0 rounded-full bg-primary px-3 py-1.5 text-sm font-bold text-primary-foreground shadow-soft transition-bounce hover:-translate-y-0.5"
 				>
 					{notification.action.label}
 				</Link>
@@ -32,9 +32,9 @@ export const Notification = ({
 				type="button"
 				onClick={onDismiss}
 				aria-label="Dismiss"
-				className="text-muted-foreground hover:text-foreground transition-smooth shrink-0"
+				className="shrink-0 text-muted-foreground transition-smooth hover:text-foreground"
 			>
-				<X className="w-4 h-4" />
+				<X className="h-4 w-4" />
 			</button>
 		</aside>
 	);

@@ -96,11 +96,13 @@ export const PostCard = ({
 				/>
 			</figure>
 
-			<article className="p-5">
-				<header className="flex items-start justify-between gap-3 mb-2">
-					<h3 className="text-2xl font-bold leading-tight">
-						{post.dog_name}
-					</h3>
+			<article className="p-5 border-t border-border/50 bg-card">
+
+	<header className="flex items-start justify-between gap-3 mb-2">
+		<h3 className="text-2xl font-bold leading-tight">
+			{post.dog_name}
+		</h3>
+
 
 					<span
 						onClick={(e) => {
@@ -130,17 +132,48 @@ export const PostCard = ({
 					{post.location}
 				</p>
 
-				{post.description && (
-					<p className="text-sm text-foreground/80 leading-relaxed">
-						{descriptionPreview}
-					</p>
-				)}
+				{/* ============================================
+				    DESCRIPTION / FULL POST LINK
+				    ============================================ */}
 
-				{onClick && post.description && (
-					<p className="text-xs text-primary font-semibold mt-2">
-						Click to see full post →
-					</p>
-				)}
+				<div className="min-h-[3.75rem]">
+					{post.description ? (
+						<>
+							<p className="text-sm text-foreground/80 leading-relaxed">
+								{descriptionPreview}
+							</p>
+
+							{onClick && (
+								<p className="text-xs text-primary font-semibold mt-2">
+									Click to see full post →
+								</p>
+							)}
+						</>
+					) : onClick ? (
+						/*
+						 * There is no description,
+						 * but this card can still be opened.
+						 */
+						<p className="text-xs text-primary font-semibold">
+							Click to see full post →
+						</p>
+					) : (
+						/*
+						 * No description and no onClick.
+						 *
+						 * Keep the same vertical space so
+						 * extraContent stays aligned.
+						 */
+						<div
+							aria-hidden="true"
+							className="h-[3.75rem]"
+						/>
+					)}
+				</div>
+
+				{/* ============================================
+				    EXTRA CONTENT
+				    ============================================ */}
 
 				{extraContent && (
 					<footer

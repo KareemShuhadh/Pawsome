@@ -1,10 +1,17 @@
 import { MyPostCard } from "@/components/MyPostCard";
 import { EditPostForm } from "@/components/EditPostForm";
 import { PostDetailsModal } from "@/components/PostDetailsModal";
+import { Notification } from "@/components/Notification";
+
 import { usePosts } from "@/context/PostContext";
 import { useAuth } from "@/context/AuthContext";
+
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import {
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 
 export default function MyPosts() {
 	const [editingPost, setEditingPost] =
@@ -13,10 +20,40 @@ export default function MyPosts() {
 	const [selectedPost, setSelectedPost] =
 		useState(null);
 
+	/*
+	 * ======================================================
+	 * NOTIFICATION
+	 * ======================================================
+	 */
+
+	const [notification, setNotification] =
+		useState(null);
+
+	const [notificationAnimation, setNotificationAnimation] =
+		useState("enter");
+
+	const notificationTimeoutRef =
+		useRef(null);
+
+	const removeNotificationTimeoutRef =
+		useRef(null);
+
+	/*
+	 * ======================================================
+	 * AUTH
+	 * ======================================================
+	 */
+
 	const {
 		user,
 		loading: authLoading,
 	} = useAuth();
+
+	/*
+	 * ======================================================
+	 * POSTS
+	 * ======================================================
+	 */
 
 	const {
 		userPosts,
@@ -25,25 +62,166 @@ export default function MyPosts() {
 		updatePost,
 	} = usePosts();
 
+	/*
+	 * ======================================================
+	 * NOTIFICATION CLEANUP
+	 * ======================================================
+	 */
+
+	useEffect(() => {
+		return () => {
+			if (notificationTimeoutRef.current) {
+				clearTimeout(
+					notificationTimeoutRef.current
+				);
+			}
+
+			if (
+				removeNotificationTimeoutRef.current
+			) {
+				clearTimeout(
+					removeNotificationTimeoutRef.current
+				);
+			}
+		};
+	}, []);
+
+	/*
+	 * ======================================================
+	 * REMOVE NOTIFICATION
+	 * ======================================================
+	 */
+
+	const removeNotification = () => {
+		setNotification(null);
+		setNotificationAnimation("enter");
+
+		removeNotificationTimeoutRef.current =
+			null;
+	};
+
+	/*
+	 * ======================================================
+	 * START NOTIFICATION EXIT
+	 * ======================================================
+	 */
+
+	const startNotificationExit = () => {
+		if (notificationAnimation === "exit") {
+			return;
+		}
+
+		setNotificationAnimation("exit");
+
+		removeNotificationTimeoutRef.current =
+			setTimeout(() => {
+				removeNotification();
+			}, 900);
+	};
+
+	/*
+	 * ======================================================
+	 * SHOW NOTIFICATION
+	 * ======================================================
+	 */
+
+	const showNotification = (
+		type,
+		message,
+		action = null
+	) => {
+		/*
+		 * Clear previous timers.
+		 */
+		if (notificationTimeoutRef.current) {
+			clearTimeout(
+				notificationTimeoutRef.current
+			);
+
+			notificationTimeoutRef.current =
+				null;
+		}
+
+		if (
+			removeNotificationTimeoutRef.current
+		) {
+			clearTimeout(
+				removeNotificationTimeoutRef.current
+			);
+
+			removeNotificationTimeoutRef.current =
+				null;
+		}
+
+		/*
+		 * Show notification.
+		 */
+		setNotification({
+			type,
+			message,
+			action,
+		});
+
+		/*
+		 * Start from the bottom.
+		 */
+		setNotificationAnimation("enter");
+
+		/*
+		 * After 3.5 seconds,
+		 * start the exit animation.
+		 */
+		notificationTimeoutRef.current =
+			setTimeout(() => {
+				startNotificationExit();
+			}, 3500);
+	};
+
+	/*
+	 * ======================================================
+	 * DISMISS NOTIFICATION
+	 * ======================================================
+	 */
+
+	const dismissNotification = () => {
+		if (notificationTimeoutRef.current) {
+			clearTimeout(
+				notificationTimeoutRef.current
+			);
+
+			notificationTimeoutRef.current =
+				null;
+		}
+
+		startNotificationExit();
+	};
+
+	/*
+	 * ======================================================
+	 * DELETE
+	 * ======================================================
+	 */
+
 	const handleDelete = async (id) => {
 		return await deletePost(id);
 	};
 
 	/*
-	 * One loading state.
-	 *
-	 * We wait for both:
-	 *
-	 * 1. Authentication
-	 * 2. User posts
+	 * ======================================================
+	 * LOADING
+	 * ======================================================
 	 */
+
 	const isLoading =
 		authLoading ||
 		(user && userPostsLoading);
 
 	/*
-	 * Loading screen
+	 * ======================================================
+	 * LOADING SCREEN
+	 * ======================================================
 	 */
+
 	if (isLoading) {
 		return (
 			<main className="min-h-screen bg-background pb-16 pt-8">
@@ -79,10 +257,11 @@ export default function MyPosts() {
 	}
 
 	/*
-	 * Authentication has finished.
-	 *
-	 * If there is no user, show the login screen.
+	 * ======================================================
+	 * NOT LOGGED IN
+	 * ======================================================
 	 */
+
 	if (!user) {
 		return (
 			<main className="min-h-screen bg-background pb-16 pt-8">
@@ -131,12 +310,11 @@ export default function MyPosts() {
 	}
 
 	/*
-	 * At this point:
-	 *
-	 * - Auth has finished
-	 * - User exists
-	 * - User posts have finished loading
+	 * ======================================================
+	 * MAIN PAGE
+	 * ======================================================
 	 */
+
 	return (
 		<main className="min-h-screen bg-background pb-16 pt-8">
 			<section className="container mx-auto px-4">
@@ -186,13 +364,19 @@ export default function MyPosts() {
 								onEdit={setEditingPost}
 								onDelete={handleDelete}
 								onOpen={setSelectedPost}
+								showNotification={
+									showNotification
+								}
 							/>
 						))}
 					</section>
 				)}
 			</section>
 
-			{/* Edit Post Modal */}
+			{/* ==================================================
+			    EDIT POST
+			    ================================================== */}
+
 			{editingPost && (
 				<EditPostForm
 					post={editingPost}
@@ -200,10 +384,16 @@ export default function MyPosts() {
 						setEditingPost(null)
 					}
 					onSave={updatePost}
+					showNotification={
+						showNotification
+					}
 				/>
 			)}
 
-			{/* Post Details Modal */}
+			{/* ==================================================
+			    POST DETAILS
+			    ================================================== */}
+
 			<PostDetailsModal
 				post={selectedPost}
 				open={!!selectedPost}
@@ -212,10 +402,6 @@ export default function MyPosts() {
 				}
 				isMyPost
 				onEdit={(post) => {
-					/*
-					 * Close the details modal first,
-					 * then open the edit form.
-					 */
 					setSelectedPost(null);
 					setEditingPost(post);
 				}}
@@ -223,17 +409,54 @@ export default function MyPosts() {
 					const result =
 						await handleDelete(id);
 
-					/*
-					 * Only close the modal if
-					 * deletion succeeded.
-					 */
 					if (!result?.error) {
 						setSelectedPost(null);
+
+						showNotification(
+							"delete-success",
+							"Aww... your post is gone. We'll miss it! 🐶💔"
+						);
+					} else {
+						showNotification(
+							"error",
+							result.error?.message ||
+								"Couldn't delete the post. Please try again."
+						);
 					}
 
 					return result;
 				}}
 			/>
+
+			{/* ==================================================
+			    NOTIFICATION
+			    ================================================== */}
+
+			{notification && (
+				<div className="fixed bottom-6 inset-x-0 z-50 flex justify-center pointer-events-none px-4">
+					<div
+						className={`
+							pointer-events-auto
+							${
+								notificationAnimation ===
+								"enter"
+									? "animate-login-prompt-enter"
+									: notificationAnimation ===
+										  "exit"
+										? "animate-login-prompt-exit"
+										: ""
+							}
+						`}
+					>
+						<Notification
+							notification={notification}
+							onDismiss={
+								dismissNotification
+							}
+						/>
+					</div>
+				</div>
+			)}
 		</main>
 	);
 }

@@ -15,13 +15,8 @@ export const EditPostForm = ({
 	post,
 	onClose,
 	onSave,
+	showNotification,
 }) => {
-	/*
-	 * Existing post information.
-	 *
-	 * These values are used only to initialize
-	 * the edit form.
-	 */
 	const [dogName, setDogName] = useState(
 		post.dog_name || ""
 	);
@@ -38,18 +33,8 @@ export const EditPostForm = ({
 		post.description || ""
 	);
 
-	/*
-	 * New image selected by the user.
-	 *
-	 * IMPORTANT:
-	 * This remains null when the user doesn't
-	 * want to change the image.
-	 */
 	const [file, setFile] = useState(null);
 
-	/*
-	 * Temporary browser preview of the new image.
-	 */
 	const [preview, setPreview] = useState(null);
 
 	const [saving, setSaving] = useState(false);
@@ -57,17 +42,11 @@ export const EditPostForm = ({
 
 	const fileRef = useRef(null);
 
-	/*
-	 * Handle selecting a new image.
-	 */
 	const handleFile = (selectedFile) => {
 		if (!selectedFile) {
 			return;
 		}
 
-		/*
-		 * Make sure it is actually an image.
-		 */
 		if (!selectedFile.type.startsWith("image/")) {
 			setError("Please choose an image file.");
 
@@ -78,12 +57,6 @@ export const EditPostForm = ({
 			return;
 		}
 
-		/*
-		 * Maximum file size: 8MB.
-		 *
-		 * This is the same limit used
-		 * by AddDogForm.
-		 */
 		if (selectedFile.size > 8 * 1024 * 1024) {
 			setError("Image must be under 8MB.");
 
@@ -94,24 +67,12 @@ export const EditPostForm = ({
 			return;
 		}
 
-		/*
-		 * If there was already a temporary preview,
-		 * release its browser memory.
-		 */
 		if (preview) {
 			URL.revokeObjectURL(preview);
 		}
 
-		/*
-		 * Store the new File.
-		 *
-		 * Nothing is uploaded to Cloudinary here.
-		 */
 		setFile(selectedFile);
 
-		/*
-		 * Create a temporary local preview.
-		 */
 		const previewUrl =
 			URL.createObjectURL(selectedFile);
 
@@ -120,14 +81,6 @@ export const EditPostForm = ({
 		setError("");
 	};
 
-	/*
-	 * Remove the newly selected image.
-	 *
-	 * This DOES NOT delete anything from Cloudinary.
-	 *
-	 * It simply cancels the replacement and
-	 * returns the form to the existing image.
-	 */
 	const handleRemoveNewImage = () => {
 		if (preview) {
 			URL.revokeObjectURL(preview);
@@ -143,15 +96,9 @@ export const EditPostForm = ({
 		setError("");
 	};
 
-	/*
-	 * Submit the edited post.
-	 */
 	const handleSubmit = async (event) => {
 		event.preventDefault();
 
-		/*
-		 * Validate required fields.
-		 */
 		if (
 			!dogName.trim() ||
 			!ownerName.trim() ||
@@ -167,13 +114,6 @@ export const EditPostForm = ({
 		setSaving(true);
 		setError("");
 
-		/*
-		 * Build the update object.
-		 *
-		 * Notice that we DON'T put image in here
-		 * unless the user actually selected
-		 * a replacement image.
-		 */
 		const updates = {
 			dog_name: dogName.trim(),
 			owner_name: ownerName.trim(),
@@ -182,20 +122,6 @@ export const EditPostForm = ({
 				description.trim() || null,
 		};
 
-		/*
-		 * Only include the image if the user
-		 * selected a new one.
-		 *
-		 * This is important because it means:
-		 *
-		 * No new image
-		 *      ↓
-		 * no Cloudinary operation
-		 *
-		 * New image
-		 *      ↓
-		 * PostContext handles the replacement
-		 */
 		if (file) {
 			updates.image = file;
 		}
@@ -217,7 +143,15 @@ export const EditPostForm = ({
 
 			/*
 			 * Everything succeeded.
+			 *
+			 * Show the notification before closing
+			 * the edit form.
 			 */
+			showNotification(
+				"edit-success",
+				"Your pup's post has been updated! 🐶✨"
+			);
+
 			onClose();
 		} catch (err) {
 			console.error(
@@ -234,23 +168,12 @@ export const EditPostForm = ({
 		}
 	};
 
-	/*
-	 * Decide which image to display.
-	 *
-	 * New image selected:
-	 *     show the new local preview.
-	 *
-	 * No new image:
-	 *     show the existing Cloudinary image.
-	 */
 	const imageToDisplay =
 		preview || post.image_url || null;
 
 	return (
 		<section className="fixed inset-0 z-60 flex items-center justify-center bg-foreground/40 px-4 py-8 backdrop-blur-sm">
 			<Card className="relative max-h-full w-full max-w-lg overflow-y-auto post-details-scrollbar p-6 shadow-card">
-
-				{/* Close button */}
 
 				<button
 					type="button"
@@ -274,8 +197,6 @@ export const EditPostForm = ({
 					onSubmit={handleSubmit}
 					className="space-y-4"
 				>
-					{/* Dog name */}
-
 					<section className="space-y-2">
 						<Label htmlFor="edit-dog-name">
 							Dog&apos;s name *
@@ -290,8 +211,6 @@ export const EditPostForm = ({
 							maxLength={60}
 						/>
 					</section>
-
-					{/* Owner name */}
 
 					<section className="space-y-2">
 						<Label htmlFor="edit-owner-name">
@@ -308,8 +227,6 @@ export const EditPostForm = ({
 						/>
 					</section>
 
-					{/* Location */}
-
 					<section className="space-y-2">
 						<Label htmlFor="edit-location">
 							Location *
@@ -324,8 +241,6 @@ export const EditPostForm = ({
 							maxLength={80}
 						/>
 					</section>
-
-					{/* Description */}
 
 					<section className="space-y-2">
 						<Label htmlFor="edit-description">
@@ -346,8 +261,6 @@ export const EditPostForm = ({
 							{description.length}/280
 						</p>
 					</section>
-
-					{/* Photo */}
 
 					<section className="space-y-2">
 						<Label>
@@ -370,10 +283,6 @@ export const EditPostForm = ({
 										<button
 											type="button"
 											onClick={(event) => {
-												/*
-												 * Prevent the label from
-												 * opening the file picker.
-												 */
 												event.preventDefault();
 												event.stopPropagation();
 
@@ -430,15 +339,11 @@ export const EditPostForm = ({
 						)}
 					</section>
 
-					{/* Error */}
-
 					{error && (
 						<p className="text-sm text-destructive">
 							{error}
 						</p>
 					)}
-
-					{/* Buttons */}
 
 					<footer className="flex justify-end gap-3 pt-2">
 						<button
