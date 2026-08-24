@@ -42,11 +42,17 @@ export const EditPostForm = ({
 
 	const fileRef = useRef(null);
 
+	/*
+	 * Handle image selection.
+	 */
 	const handleFile = (selectedFile) => {
 		if (!selectedFile) {
 			return;
 		}
 
+		/*
+		 * Make sure the selected file is an image.
+		 */
 		if (!selectedFile.type.startsWith("image/")) {
 			setError("Please choose an image file.");
 
@@ -57,8 +63,11 @@ export const EditPostForm = ({
 			return;
 		}
 
-		if (selectedFile.size > 8 * 1024 * 1024) {
-			setError("Image must be under 8MB.");
+		/*
+		 * Maximum file size: 10MB.
+		 */
+		if (selectedFile.size > 10 * 1024 * 1024) {
+			setError("Image must be under 10MB.");
 
 			if (fileRef.current) {
 				fileRef.current.value = "";
@@ -67,12 +76,18 @@ export const EditPostForm = ({
 			return;
 		}
 
+		/*
+		 * Clean up the previous preview URL.
+		 */
 		if (preview) {
 			URL.revokeObjectURL(preview);
 		}
 
 		setFile(selectedFile);
 
+		/*
+		 * Create a temporary preview URL.
+		 */
 		const previewUrl =
 			URL.createObjectURL(selectedFile);
 
@@ -81,6 +96,9 @@ export const EditPostForm = ({
 		setError("");
 	};
 
+	/*
+	 * Remove the newly selected replacement image.
+	 */
 	const handleRemoveNewImage = () => {
 		if (preview) {
 			URL.revokeObjectURL(preview);
@@ -96,6 +114,9 @@ export const EditPostForm = ({
 		setError("");
 	};
 
+	/*
+	 * Submit changes.
+	 */
 	const handleSubmit = async (event) => {
 		event.preventDefault();
 
@@ -122,6 +143,10 @@ export const EditPostForm = ({
 				description.trim() || null,
 		};
 
+		/*
+		 * Only include an image when the user
+		 * selected a replacement.
+		 */
 		if (file) {
 			updates.image = file;
 		}
@@ -197,6 +222,8 @@ export const EditPostForm = ({
 					onSubmit={handleSubmit}
 					className="space-y-4"
 				>
+					{/* Dog name */}
+
 					<section className="space-y-2">
 						<Label htmlFor="edit-dog-name">
 							Dog&apos;s name *
@@ -206,11 +233,15 @@ export const EditPostForm = ({
 							id="edit-dog-name"
 							value={dogName}
 							onChange={(event) =>
-								setDogName(event.target.value)
+								setDogName(
+									event.target.value
+								)
 							}
 							maxLength={60}
 						/>
 					</section>
+
+					{/* Owner name */}
 
 					<section className="space-y-2">
 						<Label htmlFor="edit-owner-name">
@@ -221,11 +252,15 @@ export const EditPostForm = ({
 							id="edit-owner-name"
 							value={ownerName}
 							onChange={(event) =>
-								setOwnerName(event.target.value)
+								setOwnerName(
+									event.target.value
+								)
 							}
 							maxLength={60}
 						/>
 					</section>
+
+					{/* Location */}
 
 					<section className="space-y-2">
 						<Label htmlFor="edit-location">
@@ -236,11 +271,15 @@ export const EditPostForm = ({
 							id="edit-location"
 							value={location}
 							onChange={(event) =>
-								setLocation(event.target.value)
+								setLocation(
+									event.target.value
+								)
 							}
 							maxLength={80}
 						/>
 					</section>
+
+					{/* Description */}
 
 					<section className="space-y-2">
 						<Label htmlFor="edit-description">
@@ -251,7 +290,9 @@ export const EditPostForm = ({
 							id="edit-description"
 							value={description}
 							onChange={(event) =>
-								setDescription(event.target.value)
+								setDescription(
+									event.target.value
+								)
 							}
 							maxLength={280}
 							rows={4}
@@ -261,6 +302,8 @@ export const EditPostForm = ({
 							{description.length}/280
 						</p>
 					</section>
+
+					{/* Photo */}
 
 					<section className="space-y-2">
 						<Label>
@@ -305,7 +348,7 @@ export const EditPostForm = ({
 									</p>
 
 									<p className="text-xs text-muted-foreground">
-										PNG, JPG, WEBP — up to 8MB
+										PNG, JPG, WEBP — up to 10MB
 									</p>
 								</section>
 							)}
@@ -339,11 +382,15 @@ export const EditPostForm = ({
 						)}
 					</section>
 
+					{/* Error */}
+
 					{error && (
 						<p className="text-sm text-destructive">
 							{error}
 						</p>
 					)}
+
+					{/* Actions */}
 
 					<footer className="flex justify-end gap-3 pt-2">
 						<button
