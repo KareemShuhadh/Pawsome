@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 
-export const POSTS_PER_PAGE = 2;
+export const POSTS_PER_PAGE = 5;
 
 /* Fetch the global Top Dogs. */
 

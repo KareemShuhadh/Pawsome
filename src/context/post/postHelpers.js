@@ -75,3 +75,25 @@ export const removePost = (
 		(post) => post.id !== postId
 	);
 };
+
+/* Update a post's vote count. */
+
+export const updatePostVotes = (
+	currentPosts,
+	postId,
+	delta
+) => {
+	return currentPosts.map((post) => {
+		if (post.id !== postId) {
+			return post;
+		}
+
+		return {
+			...post,
+			votes: Math.max(
+				0,
+				(post.votes || 0) + delta
+			),
+		};
+	});
+};
