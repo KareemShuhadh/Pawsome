@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Main Pad (Primary Color) -->
+  <path d="M50 45C38 45 30 58 30 70C30 80 38 88 50 88C62 88 70 80 70 70C70 58 62 45 50 45Z" fill="hsl(18, 85%, 58%)"/>
+  
+  <!-- Toe Beans (Primary Glow Accent) -->
+  <ellipse cx="25" cy="38" rx="8" ry="12" transform="rotate(-20 25 38)" fill="hsl(30, 95%, 68%)"/>
+  <ellipse cx="42" cy="25" rx="8" ry="12" transform="rotate(-5 42 25)" fill="hsl(30, 95%, 68%)"/>
+  <ellipse cx="58" cy="25" rx="8" ry="12" transform="rotate(5 58 25)" fill="hsl(30, 95%, 68%)"/>
+  <ellipse cx="75" cy="38" rx="8" ry="12" transform="rotate(20 75 38)" fill="hsl(30, 95%, 68%)"/>
+</svg>

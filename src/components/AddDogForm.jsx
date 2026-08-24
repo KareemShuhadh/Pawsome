@@ -86,12 +86,12 @@ export const AddDogForm = ({ onCreated }) => {
 		}
 
 		/*
-		 * Maximum file size: 8MB.
+		 * Maximum file size: 10MB.
 		 */
-		if (f.size > 8 * 1024 * 1024) {
+		if (f.size > 10 * 1024 * 1024) {
 			showNotification(
 				"photo",
-				"Image must be under 8MB."
+				"Image must be under 10MB."
 			);
 
 			return;
@@ -462,7 +462,7 @@ export const AddDogForm = ({ onCreated }) => {
 									</p>
 
 									<p className="text-xs text-muted-foreground">
-										PNG, JPG, WEBP — up to 8MB
+										PNG, JPG, WEBP — up to 10MB
 									</p>
 								</div>
 							)}

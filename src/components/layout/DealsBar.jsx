@@ -145,10 +145,47 @@ export default function DealsBar() {
 	}
 
 	/*
-	 * Nothing to display.
+	 * No promotions yet.
+	 *
+	 * Keep the Community Offers section visible
+	 * so users know deals are coming soon.
 	 */
 	if (promotions.length === 0) {
-		return null;
+		return (
+			<section
+				aria-labelledby="community-offers-heading"
+				className="container mx-auto mt-8 px-4"
+			>
+				<header className="mb-4">
+					<h2
+						id="community-offers-heading"
+						className="text-xl font-bold leading-tight"
+					>
+						✨ Community Offers
+					</h2>
+
+					<p className="text-sm text-muted-foreground">
+						Special offers for Pawsome members
+					</p>
+				</header>
+
+				<section
+					className="flex min-h-64 items-center justify-center rounded-xl bg-muted p-6 text-center"
+					aria-label="Community offers coming soon"
+				>
+					<div>
+						<p className="text-2xl font-bold">
+							🐾 Coming soon!
+						</p>
+
+						<p className="mt-2 text-sm text-muted-foreground">
+							We're working on special offers from
+							Pawsome partners.
+						</p>
+					</div>
+				</section>
+			</section>
+		);
 	}
 
 	/*
